@@ -1,0 +1,15 @@
+-- By default this file is used by `persistFileWith` in Model.hs (which is imported by Foundation.hs)
+-- Syntax for this file here: https://github.com/yesodweb/persistent/blob/master/docs/Persistent-entity-syntax.md
+
+Board json sql=boards
+    name String
+	color Color default='Red'
+    deriving Eq Read Show
+
+Task json sql=tasks
+    boardId BoardId
+    name String
+	points Int
+    status TaskStatus default='Backlog'
+    deriving Eq Read Show
+

@@ -1,0 +1,50 @@
+name:        kb
+version:     0.1.0.0
+github:      "carp-sushi/kb"
+license:     BSD-3-Clause
+author:      "carp-sushi"
+maintainer:  "105142707+carp-sushi@users.noreply.github.com"
+copyright:   "Copyright 2026-present, the original author(s)"
+description: Please see the README on GitHub at <https://github.com/carp-sushi/kb#readme>
+
+extra-source-files:
+- README.md
+
+dependencies:
+- base >= 4.7 && < 5
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs: src
+
+executables:
+  kb-exe:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - kb
+
+tests:
+  kb-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - kb
