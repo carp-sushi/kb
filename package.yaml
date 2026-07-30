@@ -12,23 +12,34 @@ extra-source-files:
 
 dependencies:
 - base >= 4.7 && < 5
+- aeson
+- configurator
+- fast-logger
+- monad-logger
+- persistent
+- persistent-postgresql
+- say
+- text
+- time
+- wai
+- wai-extra
+- wai-logger
+- warp
+- yesod-core
+- yesod-persistent
 
 ghc-options:
 - -Wall
-- -Wcompat
-- -Widentities
-- -Wincomplete-record-updates
-- -Wincomplete-uni-patterns
-- -Wmissing-export-lists
-- -Wmissing-home-modules
-- -Wpartial-fields
-- -Wredundant-constraints
+- -ddump-splices
+- -ddump-to-file
+- -fwarn-tabs
+- -O2
 
 library:
   source-dirs: src
 
 executables:
-  kb-exe:
+  kb-server:
     main: Main.hs
     source-dirs: app
     ghc-options:
@@ -48,3 +59,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - kb
+    - hspec >= 2.0.0
+    - mtl
+    - shakespeare
+    - yesod-test

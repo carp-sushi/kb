@@ -3,13 +3,14 @@
 
 Board json sql=boards
     name String
-	color Color default='Red'
+    color BoardColor default='Red'
+    position Int default=0
     deriving Eq Read Show
 
 Task json sql=tasks
     boardId BoardId
     name String
-	points Int
-    status TaskStatus default='Backlog'
+    points Int default=1
+    status TaskStatus default='Todo'
     deriving Eq Read Show
 

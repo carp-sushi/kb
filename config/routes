@@ -1,6 +1,5 @@
 /boards                   BoardsR         GET POST
-/boards/#BoardId          BoardR          GET DELETE PUT
+/boards/#BoardId          BoardR          GET PUT DELETE
 /boards/#BoardId/tasks    BoardTasksR     GET
 /tasks                    TasksR          POST
-/tasks/#TaskId            TaskR           GET DELETE PUT
-
+/tasks/#TaskId            TaskR           GET PUT DELETE
