@@ -24,7 +24,7 @@ import Database.Persist.TH
 import GHC.Generics
 
 -- | Custom field type for board color.
-data BoardColor = Red | Yellow | Blue | Green | Pink | Orange | Purple
+data BoardColor = Red | Yellow | Blue | Green | Magenta | Cyan | White
     deriving (Eq, Generic, Ord, Read, Show)
 
 -- Define persistence and JSON encoding / decoding for the board color type.
