@@ -24,8 +24,16 @@ import Database.Persist.TH
 import GHC.Generics
 
 -- | Custom field type for board color.
-data BoardColor = Red | Yellow | Blue | Green | Magenta | Cyan | White
-    deriving (Eq, Generic, Ord, Read, Show)
+data BoardColor
+    = Red
+    | Yellow
+    | Blue
+    | Green
+    | Magenta
+    | Cyan
+    | White
+    deriving
+        (Eq, Generic, Ord, Read, Show)
 
 -- Define persistence and JSON encoding / decoding for the board color type.
 derivePersistField "BoardColor"
@@ -33,8 +41,12 @@ instance ToJSON BoardColor
 instance FromJSON BoardColor
 
 -- | Custom field type for task status.
-data TaskStatus = Todo | Doing | Done
-    deriving (Eq, Generic, Ord, Read, Show)
+data TaskStatus
+    = Todo
+    | Doing
+    | Done
+    deriving
+        (Eq, Generic, Ord, Read, Show)
 
 -- Define persistence and JSON encoding / decoding for the task status type.
 derivePersistField "TaskStatus"
