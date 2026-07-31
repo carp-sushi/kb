@@ -30,7 +30,7 @@ runApp filePath = do
     settings <- loadSettings filePath
     app <- makeApp settings
     waiApp <- makeWaiApplication app
-    say $ "Running on port " <> settingsHttpPort settings
+    say $ "Running kb-server on port " <> settingsHttpPort settings
     Warp.runSettings (warpSettings app) waiApp
 
 -- | Create the core application
