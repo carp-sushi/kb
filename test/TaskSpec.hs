@@ -38,7 +38,7 @@ spec = withApp $ do
             statusIs 404
 
     describe "create task" $ do
-        it "returns 200 when JSON body is valid" $ do
+        it "returns 200 when JSON body is valid and task validation passes" $ do
             boardId <- runDB $ insert $ Board "Test Board" Red 1
             request $ do
                 setMethod "POST"
@@ -62,8 +62,24 @@ spec = withApp $ do
                 setRequestBody $ encode $ object ["foo" .= ("Test Task" :: Value)]
             statusIs 400
 
+        it "returns 400 when JSON body is valid but task validation fails" $ do
+            boardId <- runDB $ insert $ Board "Test Board" Red 1
+            request $ do
+                setMethod "POST"
+                setUrl $ TasksR
+                addRequestHeader ("Content-Type", "application/json")
+                setRequestBody $
+                    encode $
+                        object
+                            [ "boardId" .= boardId
+                            , "name" .= ("" :: Text) -- invalid
+                            , "points" .= (0 :: Int) -- invalid
+                            , "status" .= Todo
+                            ]
+            statusIs 400
+
     describe "update task" $ do
-        it "returns 200 when JSON body is valid" $ do
+        it "returns 200 when JSON body is valid and task validation passes" $ do
             (boardId, taskId) <- runDB $ do
                 bid <- insert $ Board "Test Board" Red 1
                 tid <- insert $ Task bid "Test Task" 1 Todo
@@ -92,6 +108,25 @@ spec = withApp $ do
                 setUrl $ TaskR taskId
                 addRequestHeader ("Content-Type", "application/json")
                 setRequestBody $ encode $ object ["foo" .= ("Test Task" :: Value)]
+            statusIs 400
+
+        it "returns 400 when JSON body is valid but task validation fails" $ do
+            (boardId, taskId) <- runDB $ do
+                bid <- insert $ Board "Test Board" Red 1
+                tid <- insert $ Task bid "Test Task" 1 Todo
+                pure (bid, tid)
+            request $ do
+                setMethod "PUT"
+                setUrl $ TaskR taskId
+                addRequestHeader ("Content-Type", "application/json")
+                setRequestBody $
+                    encode $
+                        object
+                            [ "boardId" .= boardId
+                            , "name" .= ("" :: Text) -- invalid
+                            , "points" .= (0 :: Int) -- invalid
+                            , "status" .= Done
+                            ]
             statusIs 400
 
     describe "delete task" $ do

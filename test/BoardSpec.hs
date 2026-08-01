@@ -34,7 +34,7 @@ spec = withApp $ do
             statusIs 404
 
     describe "create board" $ do
-        it "returns 200 when JSON body is valid" $ do
+        it "returns 200 when JSON body is valid and board validation passes" $ do
             request $ do
                 setMethod "POST"
                 setUrl BoardsR
@@ -56,8 +56,22 @@ spec = withApp $ do
                 setRequestBody $ encode $ object ["foo" .= ("Test Board" :: Value)]
             statusIs 400
 
+        it "returns 400 when JSON body is valid but board validation fails" $ do
+            request $ do
+                setMethod "POST"
+                setUrl BoardsR
+                addRequestHeader ("Content-Type", "application/json")
+                setRequestBody $
+                    encode $
+                        object
+                            [ "name" .= (" " :: Text)  -- invalid
+                            , "color" .= Green
+                            , "position" .= (0 :: Int) -- invalid
+                            ]
+            statusIs 400
+
     describe "update board" $ do
-        it "returns 200 when JSON body is valid" $ do
+        it "returns 200 when JSON body is valid and board validation passes" $ do
             boardId <- runDB $ insert $ Board "Test Board" Red 1
             request $ do
                 setMethod "PUT"
@@ -80,6 +94,21 @@ spec = withApp $ do
                 setUrl $ BoardR boardId
                 addRequestHeader ("Content-Type", "application/json")
                 setRequestBody $ encode body
+            statusIs 400
+
+        it "returns 400 when JSON body is valid but board validation fails" $ do
+            boardId <- runDB $ insert $ Board "Test Board" Red 1
+            request $ do
+                setMethod "PUT"
+                setUrl $ BoardR boardId
+                addRequestHeader ("Content-Type", "application/json")
+                setRequestBody $
+                    encode $
+                        object
+                            [ "name" .= (" " :: Text)  -- invalid
+                            , "color" .= Yellow
+                            , "position" .= (0 :: Int) -- invalid
+                            ]
             statusIs 400
 
     describe "delete board" $ do

@@ -5,6 +5,7 @@ module Handler where
 import Dto
 import Foundation
 import Model
+import Validate
 
 import Database.Persist.Sql
 import Yesod.Core
@@ -13,15 +14,16 @@ import Yesod.Persist.Core (get404, runDB)
 -- | List all boards ordered by position.
 getBoardsR :: Handler Value
 getBoardsR = do
-    boards <- runDB $ selectList [] [Asc BoardPosition]
+    boards <- runDB $ selectList [] [Asc BoardPosition, Asc BoardName]
     returnJson boards
 
 -- | Create a board.
 postBoardsR :: Handler Value
 postBoardsR = do
-    board <- requireCheckJsonBody :: Handler Board
-    inserted <- runDB $ insertEntity board
-    returnJson inserted
+    body <- requireCheckJsonBody :: Handler Board
+    case validateBoard body of
+        (Left errors) -> invalidArgs errors
+        (Right board) -> createBoard board
 
 -- | Get a board.
 getBoardR :: BoardId -> Handler Value
@@ -32,16 +34,10 @@ getBoardR boardId =
 -- | Update a board.
 putBoardR :: BoardId -> Handler Value
 putBoardR boardId = do
-    board <- requireCheckJsonBody :: Handler Board
-    updated <- runDB $ do
-        update
-            boardId
-            [ BoardName =. boardName board
-            , BoardColor =. boardColor board
-            , BoardPosition =. boardPosition board
-            ]
-        get404 boardId
-    returnJson $ boardDto boardId updated
+    body <- requireCheckJsonBody :: Handler Board
+    case validateBoard body of
+        (Left errors) -> invalidArgs errors
+        (Right board) -> updateBoard boardId board
 
 -- | Delete a board and all tasks on the board.
 deleteBoardR :: BoardId -> Handler ()
@@ -60,11 +56,10 @@ getBoardTasksR boardId = do
 -- | Create a task.
 postTasksR :: Handler Value
 postTasksR = do
-    task <- requireCheckJsonBody :: Handler Task
-    inserted <- runDB $ do
-        _ <- get404 $ taskBoardId task
-        insertEntity task
-    returnJson inserted
+    body <- requireCheckJsonBody :: Handler Task
+    case validateTask body of
+        (Left errors) -> invalidArgs errors
+        (Right task) -> createTask task
 
 -- | Get a task.
 getTaskR :: TaskId -> Handler Value
@@ -75,7 +70,48 @@ getTaskR taskId = do
 -- | Update a task.
 putTaskR :: TaskId -> Handler Value
 putTaskR taskId = do
-    task <- requireCheckJsonBody :: Handler Task
+    body <- requireCheckJsonBody :: Handler Task
+    case validateTask body of
+        (Left errors) -> invalidArgs errors
+        (Right task) -> updateTask taskId task
+
+-- | Delete a task.
+deleteTaskR :: TaskId -> Handler ()
+deleteTaskR taskId =
+    runDB $ do
+        _ <- get404 taskId
+        delete taskId
+
+-- Helper: insert a board in the database and return it as a JSON value.
+createBoard :: Board -> Handler Value
+createBoard board = do
+    inserted <- runDB $ insertEntity board
+    returnJson inserted
+
+-- Helper: update a board in the database and return it as a JSON value.
+updateBoard :: BoardId -> Board -> Handler Value
+updateBoard boardId board = do
+    updated <- runDB $ do
+        update
+            boardId
+            [ BoardName =. boardName board
+            , BoardColor =. boardColor board
+            , BoardPosition =. boardPosition board
+            ]
+        get404 boardId
+    returnJson $ boardDto boardId updated
+
+-- Helper: insert a task in the database and return it as a JSON value.
+createTask :: Task -> Handler Value
+createTask task = do
+    inserted <- runDB $ do
+        _ <- get404 $ taskBoardId task
+        insertEntity task
+    returnJson inserted
+
+-- Helper: update a task in the database and return it as a JSON value.
+updateTask :: TaskId -> Task -> Handler Value
+updateTask taskId task = do
     runDB $ do
         _ <- get404 taskId
         _ <- get404 $ taskBoardId task
@@ -87,10 +123,3 @@ putTaskR taskId = do
             , TaskStatus =. taskStatus task
             ]
     returnJson $ taskDto taskId task
-
--- | Delete a task.
-deleteTaskR :: TaskId -> Handler ()
-deleteTaskR taskId =
-    runDB $ do
-        _ <- get404 taskId
-        delete taskId

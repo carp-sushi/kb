@@ -21,6 +21,7 @@ dependencies:
 - say
 - text
 - time
+- validation
 - wai
 - wai-extra
 - wai-logger
