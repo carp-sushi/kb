@@ -25,10 +25,8 @@ errorText InvalidPoints = "points must be between 1 and 8"
 
 -- | Validate a board
 validateBoard :: Board -> Either [T.Text] Board
-validateBoard board =
-    case validateBoard' board of
-        (Success board') -> Right board'
-        (Failure errors) -> Left $ fmap errorText errors
+validateBoard =
+    mkEither validateBoard'
 
 -- Internal board validation
 validateBoard' :: Board -> Validation [Error] Board
@@ -41,10 +39,8 @@ validateBoard' (Board name color position) =
 
 -- | Validate a task
 validateTask :: Task -> Either [T.Text] Task
-validateTask task =
-    case validateTask' task of
-        (Success task') -> Right task'
-        (Failure errors) -> Left $ fmap errorText errors
+validateTask =
+    mkEither validateTask'
 
 -- Internal task validation
 validateTask' :: Task -> Validation [Error] Task
@@ -54,6 +50,13 @@ validateTask' (Task boardId name points status) =
         <*> validatePoints points
   where
     mkTask n p = Task boardId n p status
+
+-- Call a validation function and transform the result to an Either type.
+mkEither :: (a -> Validation [Error] a) -> a -> Either [T.Text] a
+mkEither f a =
+    case f a of
+        (Success a') -> Right a'
+        (Failure errors) -> Left $ fmap errorText errors
 
 -- Internal name validation
 validateName :: String -> Validation [Error] String
