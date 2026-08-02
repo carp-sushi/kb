@@ -21,9 +21,7 @@ getBoardsR = do
 postBoardsR :: Handler Value
 postBoardsR = do
     body <- requireCheckJsonBody :: Handler Board
-    case validateBoard body of
-        (Left errors) -> invalidArgs errors
-        (Right board) -> createBoard board
+    either invalidArgs createBoard $ validateBoard body
 
 -- | Get a board.
 getBoardR :: BoardId -> Handler Value
@@ -35,9 +33,7 @@ getBoardR boardId =
 putBoardR :: BoardId -> Handler Value
 putBoardR boardId = do
     body <- requireCheckJsonBody :: Handler Board
-    case validateBoard body of
-        (Left errors) -> invalidArgs errors
-        (Right board) -> updateBoard boardId board
+    either invalidArgs (updateBoard boardId) $ validateBoard body
 
 -- | Delete a board and all tasks on the board.
 deleteBoardR :: BoardId -> Handler ()
@@ -57,9 +53,7 @@ getBoardTasksR boardId = do
 postTasksR :: Handler Value
 postTasksR = do
     body <- requireCheckJsonBody :: Handler Task
-    case validateTask body of
-        (Left errors) -> invalidArgs errors
-        (Right task) -> createTask task
+    either invalidArgs createTask $ validateTask body
 
 -- | Get a task.
 getTaskR :: TaskId -> Handler Value
@@ -71,9 +65,7 @@ getTaskR taskId = do
 putTaskR :: TaskId -> Handler Value
 putTaskR taskId = do
     body <- requireCheckJsonBody :: Handler Task
-    case validateTask body of
-        (Left errors) -> invalidArgs errors
-        (Right task) -> updateTask taskId task
+    either invalidArgs (updateTask taskId) $ validateTask body
 
 -- | Delete a task.
 deleteTaskR :: TaskId -> Handler ()
