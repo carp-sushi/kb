@@ -35,7 +35,8 @@ validateBoard' (Board name color position) =
         <$> validateName name
         <*> validatePosition position
   where
-    mkBoard n = Board n color
+    mkBoard = (`Board` color)
+    validatePosition = check (< 0) InvalidPosition
 
 -- | Validate a task
 validateTask :: Task -> Either [T.Text] Task
@@ -50,6 +51,7 @@ validateTask' (Task boardId name points status) =
         <*> validatePoints points
   where
     mkTask n p = Task boardId n p status
+    validatePoints = check (\p -> p < 1 || p > 8) InvalidPoints
 
 -- Call a validation function and transform the result to an Either type.
 mkEither :: (a -> Validation [Error] a) -> a -> Either [T.Text] a
@@ -67,16 +69,9 @@ validateName name
   where
     t = (T.strip . T.pack) name
 
--- Internal position validation
-validatePosition :: Int -> Validation [Error] Int
-validatePosition position =
-    if position < 0
-        then Failure [InvalidPosition]
-        else Success position
-
--- Internal points validation
-validatePoints :: Int -> Validation [Error] Int
-validatePoints points =
-    if points < 1 || points > 8
-        then Failure [InvalidPoints]
-        else Success points
+-- Validation helper using a failure predicate function.
+check :: (a -> Bool) -> Error -> a -> Validation [Error] a
+check isFailure e a =
+    if isFailure a
+        then Failure [e]
+        else Success a
