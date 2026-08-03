@@ -25,9 +25,9 @@ postBoardsR = do
 
 -- | Get a board.
 getBoardR :: BoardId -> Handler Value
-getBoardR boardId =
-    runDB (get404 boardId)
-        >>= returnJson . boardDto boardId
+getBoardR boardId = do
+    board <- runDB $ get404 boardId
+    returnJson $ boardDto boardId board
 
 -- | Update a board.
 putBoardR :: BoardId -> Handler Value
@@ -58,8 +58,8 @@ postTasksR = do
 -- | Get a task.
 getTaskR :: TaskId -> Handler Value
 getTaskR taskId = do
-    runDB (get404 taskId)
-        >>= returnJson . taskDto taskId
+    task <- runDB $ get404 taskId
+    returnJson $ taskDto taskId task
 
 -- | Update a task.
 putTaskR :: TaskId -> Handler Value
@@ -104,8 +104,7 @@ createTask task = do
 -- Helper: update a task in the database and return it as a JSON value.
 updateTask :: TaskId -> Task -> Handler Value
 updateTask taskId task = do
-    runDB $ do
-        _ <- get404 taskId
+    updated <- runDB $ do
         _ <- get404 $ taskBoardId task
         update
             taskId
@@ -114,4 +113,5 @@ updateTask taskId task = do
             , TaskPoints =. taskPoints task
             , TaskStatus =. taskStatus task
             ]
-    returnJson $ taskDto taskId task
+        get404 taskId
+    returnJson $ taskDto taskId updated
