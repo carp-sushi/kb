@@ -39,7 +39,7 @@ makeApp appSettings = do
     appConnectionPool <- DB.createPool appSettings
     appLogger <- Logger.makeAppLogger
     when (settingsRunMigrations appSettings) $
-        DB.runMigrations appConnectionPool
+        DB.runMigrations appSettings appConnectionPool
     pure App{..}
 
 -- Create a WAI Application and apply request logger middleware.
