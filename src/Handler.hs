@@ -2,21 +2,16 @@
 
 module Handler where
 
-import Dto
 import Foundation
 import Model
 import Service
 import Validate
 
-import Database.Persist.Sql
 import Yesod.Core
-import Yesod.Persist.Core (get404, runDB)
 
 -- | List all boards ordered by position.
 getBoardsR :: Handler Value
-getBoardsR = do
-    boards <- runDB $ selectList [] [Asc BoardPosition, Asc BoardName]
-    returnJson boards
+getBoardsR = listBoards
 
 -- | Create a board.
 postBoardsR :: Handler Value
@@ -26,9 +21,7 @@ postBoardsR = do
 
 -- | Get a board.
 getBoardR :: BoardId -> Handler Value
-getBoardR boardId = do
-    board <- runDB $ get404 boardId
-    returnJson $ boardDto boardId board
+getBoardR = lookupBoard
 
 -- | Update a board.
 putBoardR :: BoardId -> Handler Value
@@ -38,17 +31,11 @@ putBoardR boardId = do
 
 -- | Delete a board and all tasks on the board.
 deleteBoardR :: BoardId -> Handler ()
-deleteBoardR boardId =
-    runDB $ do
-        _ <- get404 boardId
-        deleteWhere [TaskBoardId ==. boardId]
-        delete boardId
+deleteBoardR = deleteBoard
 
--- | Get a page of tasks on a board.
+-- | Get all tasks on a board.
 getBoardTasksR :: BoardId -> Handler Value
-getBoardTasksR boardId = do
-    tasks <- runDB $ selectList [TaskBoardId ==. boardId] [Asc TaskId]
-    returnJson tasks
+getBoardTasksR = listTasks
 
 -- | Create a task.
 postTasksR :: Handler Value
@@ -58,9 +45,7 @@ postTasksR = do
 
 -- | Get a task.
 getTaskR :: TaskId -> Handler Value
-getTaskR taskId = do
-    task <- runDB $ get404 taskId
-    returnJson $ taskDto taskId task
+getTaskR = lookupTask
 
 -- | Update a task.
 putTaskR :: TaskId -> Handler Value
@@ -70,7 +55,4 @@ putTaskR taskId = do
 
 -- | Delete a task.
 deleteTaskR :: TaskId -> Handler ()
-deleteTaskR taskId =
-    runDB $ do
-        _ <- get404 taskId
-        delete taskId
+deleteTaskR = deleteTask
