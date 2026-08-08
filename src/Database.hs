@@ -24,11 +24,10 @@ createPool settings =
         else mkPool runNoLoggingT
   where
     mkPool loggingT =
-        liftIO $
-            loggingT $
-                createPostgresqlPool
-                    (encodeUtf8 $ settingsDatabaseUrl settings)
-                    (settingsPoolSize settings)
+        (liftIO . loggingT) $
+            createPostgresqlPool
+                (encodeUtf8 $ settingsDatabaseUrl settings)
+                (settingsPoolSize settings)
 
 -- | Run SQL migrations on a database.
 runMigrations :: (MonadIO m) => Settings -> ConnectionPool -> m ()
