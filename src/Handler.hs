@@ -64,9 +64,8 @@ getMilestonesR = listMilestones
 -- | Create a milestone.
 postMilestonesR :: Handler Value
 postMilestonesR = do
-    -- TODO: validate body before calling create
     body <- requireCheckJsonBody :: Handler Milestone
-    createMilestone body
+    either invalidArgs createMilestone (validateMilestone body)
 
 -- | Get a milestone.
 getMilestoneR :: MilestoneId -> Handler Value
@@ -74,9 +73,8 @@ getMilestoneR = lookupMilestone
 
 putMilestoneR :: MilestoneId -> Handler Value
 putMilestoneR milestoneId = do
-    -- TODO: validate body before calling update
     body <- requireCheckJsonBody :: Handler Milestone
-    updateMilestone milestoneId body
+    either invalidArgs (updateMilestone milestoneId) (validateMilestone body)
 
 -- | Delete a milestone.
 deleteMilestoneR :: MilestoneId -> Handler ()

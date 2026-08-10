@@ -58,6 +58,14 @@ spec = withApp $ do
                 setRequestBody $ encode $ object ["foo" .= ("Test" :: Value)]
             statusIs 400
 
+        it "returns 400 when JSON body is valid but milestone validation fails" $ do
+            request $ do
+                setMethod "POST"
+                setUrl MilestonesR
+                addRequestHeader ("Content-Type", "application/json")
+                setRequestBody $ encode $ object ["name" .= ("" :: Text)]
+            statusIs 400
+
     describe "update milestone" $ do
         it "returns 200 when JSON body is valid" $ do
             milestoneId <- runDB $ insert $ Milestone "Test" Nothing Nothing
@@ -75,6 +83,15 @@ spec = withApp $ do
                 setUrl $ MilestoneR milestoneId
                 addRequestHeader ("Content-Type", "application/json")
                 setRequestBody $ encode $ object ["foo" .= ("Test" :: Value)]
+            statusIs 400
+
+        it "returns 400 when JSON body is valid but milestone validation fails" $ do
+            milestoneId <- runDB $ insert $ Milestone "Test" Nothing Nothing
+            request $ do
+                setMethod "PUT"
+                setUrl $ MilestoneR milestoneId
+                addRequestHeader ("Content-Type", "application/json")
+                setRequestBody $ encode $ object ["name" .= ("" :: Text)]
             statusIs 400
 
     describe "delete milestone" $ do

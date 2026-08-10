@@ -2,6 +2,7 @@
 
 module Validate (
     validateBoard,
+    validateMilestone,
     validateTask,
 ) where
 
@@ -37,6 +38,19 @@ validateBoard' (Board name color position) =
   where
     mkBoard = (`Board` color)
     validatePosition = check (< 0) InvalidPosition
+
+-- | Validate a milestone
+validateMilestone :: Milestone -> Either [T.Text] Milestone
+validateMilestone =
+    mkEither validateMilestone'
+
+-- Internal milestone validation
+validateMilestone' :: Milestone -> Validation [Error] Milestone
+validateMilestone' (Milestone name startDate completeDate) =
+    mkMilestone
+        <$> validateName name
+  where
+    mkMilestone n = Milestone n startDate completeDate
 
 -- | Validate a task
 validateTask :: Task -> Either [T.Text] Task
