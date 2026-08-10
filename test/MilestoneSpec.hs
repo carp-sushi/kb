@@ -1,0 +1,92 @@
+{-# LANGUAGE OverloadedStrings #-}
+
+module MilestoneSpec (spec) where
+
+import Data.Aeson
+import Data.Text (Text)
+import Data.Time.Clock (addUTCTime, getCurrentTime)
+import Database.Persist.Sql (toSqlKey)
+import TestSupport
+
+spec :: Spec
+spec = withApp $ do
+    describe "list milestones" $ do
+        it "returns 200" $ do
+            request $ do
+                setMethod "GET"
+                setUrl MilestonesR
+                addRequestHeader ("Accept", "application/json")
+            statusIs 200
+
+    describe "get milestone" $ do
+        it "returns 200 when a milestone exists" $ do
+            milestoneId <- runDB $ insert $ Milestone "Test" Nothing Nothing
+            request $ do
+                setMethod "GET"
+                setUrl $ MilestoneR milestoneId
+                addRequestHeader ("Accept", "application/json")
+            statusIs 200
+
+        it "returns 404 when a milestone does not exist" $ do
+            request $ do
+                setMethod "GET"
+                setUrl $ MilestoneR (toSqlKey 0)
+                addRequestHeader ("Accept", "application/json")
+            statusIs 404
+
+    describe "create milestone" $ do
+        it "returns 200 when JSON body is valid" $ do
+            startDate <- liftIO $ getCurrentTime
+            let completeDate = addUTCTime (12 * 24 * 60 * 60) startDate
+            request $ do
+                setMethod "POST"
+                setUrl MilestonesR
+                addRequestHeader ("Content-Type", "application/json")
+                setRequestBody $ encode $
+                    object
+                        [ "name" .= ("Test" :: Text)
+                        , "startDate" .= startDate
+                        , "completeDate" .= completeDate
+                        ]
+            statusIs 200
+
+        it "returns 400 when JSON body is invalid" $ do
+            request $ do
+                setMethod "POST"
+                setUrl MilestonesR
+                addRequestHeader ("Content-Type", "application/json")
+                setRequestBody $ encode $ object ["foo" .= ("Test" :: Value)]
+            statusIs 400
+
+    describe "update milestone" $ do
+        it "returns 200 when JSON body is valid" $ do
+            milestoneId <- runDB $ insert $ Milestone "Test" Nothing Nothing
+            request $ do
+                setMethod "PUT"
+                setUrl $ MilestoneR milestoneId
+                addRequestHeader ("Content-Type", "application/json")
+                setRequestBody $ encode $ object ["name" .= ("Updated" :: Text)]
+            statusIs 200
+
+        it "returns 400 when JSON body is invalid" $ do
+            milestoneId <- runDB $ insert $ Milestone "Test" Nothing Nothing
+            request $ do
+                setMethod "PUT"
+                setUrl $ MilestoneR milestoneId
+                addRequestHeader ("Content-Type", "application/json")
+                setRequestBody $ encode $ object ["foo" .= ("Test" :: Value)]
+            statusIs 400
+
+    describe "delete milestone" $ do
+        it "returns 200 when a milestone is deleted" $ do
+            milestoneId <- runDB $ insert $ Milestone "Test" Nothing Nothing
+            request $ do
+                setMethod "DELETE"
+                setUrl $ MilestoneR milestoneId
+            statusIs 200
+
+        it "returns 404 when a milestone does not exist" $ do
+            request $ do
+                setMethod "DELETE"
+                setUrl $ MilestoneR (toSqlKey 0)
+            statusIs 404

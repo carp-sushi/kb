@@ -2,6 +2,7 @@
 
 module Dto (
     boardDto,
+    milestoneDto,
     taskDto,
 ) where
 
@@ -16,6 +17,16 @@ boardDto boardId (Board name color position) =
         , "name" .= name
         , "color" .= color
         , "position" .= position
+        ]
+
+-- | Create a JSON data transfer object for a milestone.
+milestoneDto :: MilestoneId -> Milestone -> Value
+milestoneDto milestoneId (Milestone name startDate completeDate) =
+    object
+        [ "id" .= milestoneId
+        , "name" .= name
+        , "startDate" .= startDate
+        , "completeDate" .= completeDate
         ]
 
 -- | Create a JSON data transfer object for a task.

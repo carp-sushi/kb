@@ -3,3 +3,5 @@
 /boards/#BoardId/tasks    BoardTasksR     GET
 /tasks                    TasksR          POST
 /tasks/#TaskId            TaskR           GET PUT DELETE
+/milestones               MilestonesR     GET POST
+/milestones/#MilestoneId  MilestoneR      GET PUT DELETE

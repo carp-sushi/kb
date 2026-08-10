@@ -88,3 +88,40 @@ deleteTask :: TaskId -> Handler ()
 deleteTask taskId = runDB $ do
     _ <- get404 taskId
     delete taskId
+
+-- | List all milestones as a JSON array.
+listMilestones :: Handler Value
+listMilestones = do
+    milestones <- runDB $ selectList [] [Desc MilestoneStartDate, Asc MilestoneCompleteDate]
+    returnJson milestones
+
+-- | Insert a milestone in the database and return it as a JSON value.
+createMilestone :: Milestone -> Handler Value
+createMilestone milestone = do
+    inserted <- runDB $ insertEntity milestone
+    returnJson inserted
+
+-- | Lookup a milestone by id.
+lookupMilestone :: MilestoneId -> Handler Value
+lookupMilestone milestoneId = do
+    milestone <- runDB $ get404 milestoneId
+    returnJson $ milestoneDto milestoneId milestone
+
+-- | Update a milestone in the database and return it as a JSON value.
+updateMilestone :: MilestoneId -> Milestone -> Handler Value
+updateMilestone milestoneId milestone = do
+    updated <- runDB $ do
+        update
+            milestoneId
+            [ MilestoneName =. milestoneName milestone
+            , MilestoneStartDate =. milestoneStartDate milestone
+            , MilestoneCompleteDate =. milestoneCompleteDate milestone
+            ]
+        get404 milestoneId
+    returnJson $ milestoneDto milestoneId updated
+
+-- | Delete a milestone.
+deleteMilestone :: MilestoneId -> Handler ()
+deleteMilestone milestoneId = runDB $ do
+    _ <- get404 milestoneId
+    delete milestoneId

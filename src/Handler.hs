@@ -56,3 +56,28 @@ putTaskR taskId = do
 -- | Delete a task.
 deleteTaskR :: TaskId -> Handler ()
 deleteTaskR = deleteTask
+
+-- | List all milestones.
+getMilestonesR :: Handler Value
+getMilestonesR = listMilestones
+
+-- | Create a milestone.
+postMilestonesR :: Handler Value
+postMilestonesR = do
+    -- TODO: validate body before calling create
+    body <- requireCheckJsonBody :: Handler Milestone
+    createMilestone body
+
+-- | Get a milestone.
+getMilestoneR :: MilestoneId -> Handler Value
+getMilestoneR = lookupMilestone
+
+putMilestoneR :: MilestoneId -> Handler Value
+putMilestoneR milestoneId = do
+    -- TODO: validate body before calling update
+    body <- requireCheckJsonBody :: Handler Milestone
+    updateMilestone milestoneId body
+
+-- | Delete a milestone.
+deleteMilestoneR :: MilestoneId -> Handler ()
+deleteMilestoneR = deleteMilestone

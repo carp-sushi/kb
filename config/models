@@ -14,3 +14,8 @@ Task json sql=tasks
     status TaskStatus default='Todo'
     deriving Eq Read Show
 
+Milestone json sql=milestones
+    name String
+    startDate UTCTime Maybe
+    completeDate UTCTime Maybe
+    deriving Eq Read Show
