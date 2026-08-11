@@ -1,7 +1,10 @@
-/boards                   BoardsR         GET POST
-/boards/#BoardId          BoardR          GET PUT DELETE
-/boards/#BoardId/tasks    BoardTasksR     GET
-/tasks                    TasksR          POST
-/tasks/#TaskId            TaskR           GET PUT DELETE
-/milestones               MilestonesR     GET POST
-/milestones/#MilestoneId  MilestoneR      GET PUT DELETE
+/boards                                   BoardsR            GET POST
+/boards/#BoardId                          BoardR             GET PUT DELETE
+/boards/#BoardId/tasks                    BoardTasksR        GET
+/tasks                                    TasksR             POST
+/tasks/#TaskId                            TaskR              GET PUT DELETE
+/tasks/#TaskId/milestones                 TaskMilestonesR    GET
+/milestones                               MilestonesR        GET POST
+/milestones/#MilestoneId                  MilestoneR         GET PUT DELETE
+/milestones/#MilestoneId/tasks            MilestoneTasksR    GET POST
+/milestones/#MilestoneId/tasks/#TaskId    MilestoneTaskR     DELETE

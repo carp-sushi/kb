@@ -2,7 +2,8 @@
 
 all: format build lint test
 
-HS_FILES = $(shell find app src -name "*.hs")
+# The formatter mangles esqueleto queries, so format all code except those.
+HS_FILES = $(filter-out src/Query.hs, $(shell find app src -name "*.hs"))
 
 format:
 	@fourmolu -q -i $(HS_FILES)

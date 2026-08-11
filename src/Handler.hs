@@ -57,6 +57,10 @@ putTaskR taskId = do
 deleteTaskR :: TaskId -> Handler ()
 deleteTaskR = deleteTask
 
+-- | Get all milestones linked to a task.
+getTaskMilestonesR :: TaskId -> Handler Value
+getTaskMilestonesR = listTaskMilestones
+
 -- | List all milestones.
 getMilestonesR :: Handler Value
 getMilestonesR = listMilestones
@@ -79,3 +83,17 @@ putMilestoneR milestoneId = do
 -- | Delete a milestone.
 deleteMilestoneR :: MilestoneId -> Handler ()
 deleteMilestoneR = deleteMilestone
+
+-- | Get all tasks linked to a milestone.
+getMilestoneTasksR :: MilestoneId -> Handler Value
+getMilestoneTasksR = listMilestoneTasks
+
+-- | Link a milestone to a task
+postMilestoneTasksR :: MilestoneId -> Handler Value
+postMilestoneTasksR milestoneId = do
+    taskId <- requireCheckJsonBody :: Handler TaskId
+    createMilestoneTask milestoneId taskId
+
+-- | Unlink a milestone from a task
+deleteMilestoneTaskR :: MilestoneId -> TaskId -> Handler ()
+deleteMilestoneTaskR = deleteMilestoneTask

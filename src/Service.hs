@@ -1,10 +1,15 @@
 {-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Service where
 
 import Dto
 import Foundation
 import Model
+import Page
+import qualified Query
 
 import Database.Persist.Sql
 import Yesod.Core
@@ -13,8 +18,16 @@ import Yesod.Persist.Core (get404, runDB)
 -- | List all boards as a JSON array.
 listBoards :: Handler Value
 listBoards = do
-    boards <- runDB $ selectList [] [Asc BoardPosition, Asc BoardName]
-    returnJson boards
+    (pageSize, pageNumber, pageOffset) <- readPageParams
+    boards <- runDB $ selectList [] $ pageOpts pageSize pageOffset
+    returnJson $ pageDto pageSize pageNumber boards
+  where
+    pageOpts limit_ offset_ =
+        [ LimitTo limit_
+        , OffsetBy offset_
+        , Asc BoardPosition
+        , Asc BoardName
+        ]
 
 -- | Lookup a board by id.
 lookupBoard :: BoardId -> Handler Value
@@ -51,8 +64,16 @@ deleteBoard boardId = runDB $ do
 -- | List all tasks on a board as a JSON array.
 listTasks :: BoardId -> Handler Value
 listTasks boardId = do
-    tasks <- runDB $ selectList [TaskBoardId ==. boardId] [Asc TaskId]
-    returnJson tasks
+    (pageSize, pageNumber, pageOffset) <- readPageParams
+    tasks <- runDB $ selectList filterOpts $ pageOpts pageSize pageOffset
+    returnJson $ pageDto pageSize pageNumber tasks
+  where
+    filterOpts = [TaskBoardId ==. boardId]
+    pageOpts limit_ offset_ =
+        [ LimitTo limit_
+        , OffsetBy offset_
+        , Asc TaskId
+        ]
 
 -- | Lookup a task by id.
 lookupTask :: TaskId -> Handler Value
@@ -92,8 +113,16 @@ deleteTask taskId = runDB $ do
 -- | List all milestones as a JSON array.
 listMilestones :: Handler Value
 listMilestones = do
-    milestones <- runDB $ selectList [] [Desc MilestoneStartDate, Asc MilestoneCompleteDate]
-    returnJson milestones
+    (pageSize, pageNumber, pageOffset) <- readPageParams
+    milestones <- runDB $ selectList [] $ pageOpts pageSize pageOffset
+    returnJson $ pageDto pageSize pageNumber milestones
+  where
+    pageOpts limit_ offset_ =
+        [ LimitTo limit_
+        , OffsetBy offset_
+        , Desc MilestoneStartDate
+        , Asc MilestoneCompleteDate
+        ]
 
 -- | Insert a milestone in the database and return it as a JSON value.
 createMilestone :: Milestone -> Handler Value
@@ -125,3 +154,43 @@ deleteMilestone :: MilestoneId -> Handler ()
 deleteMilestone milestoneId = runDB $ do
     _ <- get404 milestoneId
     delete milestoneId
+
+-- | Link a milestone to a task.
+createMilestoneTask :: MilestoneId -> TaskId -> Handler Value
+createMilestoneTask milestoneId taskId = do
+    (Entity _ milestoneTask) <- runDB $ do
+        maybeEntity <- Query.findMilestoneTask milestoneId taskId
+        case maybeEntity of
+            Just entity -> do
+                $logWarn "Milestone already linked to task"
+                pure entity
+            Nothing -> do
+                _ <- get404 milestoneId
+                _ <- get404 taskId
+                insertEntity $ MilestoneTask milestoneId taskId
+    returnJson milestoneTask
+
+-- | List all milestones linked to a task.
+listTaskMilestones :: TaskId -> Handler Value
+listTaskMilestones taskId = do
+    (pageSize, pageNumber, pageOffset) <- readPageParams
+    milestones <- runDB $ do
+        _ <- get404 taskId
+        Query.selectTaskMilestones taskId (fromIntegral pageSize) (fromIntegral pageOffset)
+    returnJson $
+        pageDto pageSize pageNumber milestones
+
+-- | List all tasks linked to a milestone.
+listMilestoneTasks :: MilestoneId -> Handler Value
+listMilestoneTasks milestoneId = do
+    (pageSize, pageNumber, pageOffset) <- readPageParams
+    tasks <- runDB $ do
+        _ <- get404 milestoneId
+        Query.selectMilestoneTasks milestoneId (fromIntegral pageSize) (fromIntegral pageOffset)
+    returnJson $
+        pageDto pageSize pageNumber tasks
+
+-- | Delete a link between a milestone and a task.
+deleteMilestoneTask :: MilestoneId -> TaskId -> Handler ()
+deleteMilestoneTask milestoneId taskId =
+    runDB $ deleteWhere [MilestoneTaskMilestoneId ==. milestoneId, MilestoneTaskTaskId ==. taskId]

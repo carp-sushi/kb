@@ -3,6 +3,7 @@
 module Dto (
     boardDto,
     milestoneDto,
+    pageDto,
     taskDto,
 ) where
 
@@ -38,4 +39,15 @@ taskDto taskId (Task boardId name points status) =
         , "name" .= name
         , "points" .= points
         , "status" .= status
+        ]
+
+-- | Create a page JSON object.
+pageDto :: (ToJSON a) => Int -> Int -> [a] -> Value
+pageDto pageSize pageNumber pageData =
+    object
+        [ "pageSize" .= pageSize
+        , "previousPageNumber" .= max 1 (pageNumber - 1)
+        , "pageNumber" .= pageNumber
+        , "nextPageNumber" .= (pageNumber + 1)
+        , "pageData" .= pageData
         ]

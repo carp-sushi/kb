@@ -19,3 +19,9 @@ Milestone json sql=milestones
     startDate UTCTime Maybe
     completeDate UTCTime Maybe
     deriving Eq Read Show
+
+MilestoneTask json sql=milestone_tasks
+    milestoneId MilestoneId
+    taskId TaskId
+    Primary milestoneId taskId
+    deriving Eq Read Show
