@@ -69,19 +69,19 @@ validateTask' (Task boardId name points status) =
 
 -- Call a validation function and transform the result to an Either type.
 mkEither :: (a -> Validation [Error] a) -> a -> Either [T.Text] a
-mkEither f a =
-    case f a of
+mkEither vaidate a =
+    case vaidate a of
         (Success a') -> Right a'
         (Failure errors) -> Left $ fmap errorText errors
 
 -- Internal name validation
-validateName :: String -> Validation [Error] String
+validateName :: T.Text -> Validation [Error] T.Text
 validateName name
     | T.null t = Failure [NameIsEmpty]
     | T.length t > 500 = Failure [NameTooLong]
-    | otherwise = Success $ T.unpack t
+    | otherwise = Success t
   where
-    t = (T.strip . T.pack) name
+    t = T.strip name
 
 -- Validation helper using a failure predicate function.
 check :: (a -> Bool) -> Error -> a -> Validation [Error] a

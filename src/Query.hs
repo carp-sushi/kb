@@ -12,7 +12,7 @@ import Data.Int (Int64)
 import Database.Esqueleto.Experimental
 import Model
 
--- | Find a link between a milestone and a task if there is one.
+-- | Find a link between a milestone and a task if one exists.
 findMilestoneTask ::
     (MonadIO m) =>
     MilestoneId ->
@@ -20,11 +20,11 @@ findMilestoneTask ::
     SqlPersistT m (Maybe (Entity MilestoneTask))
 findMilestoneTask milestoneId taskId =
     selectOne $ do
-        ms <- from $ table @MilestoneTask
+        mt <- from $ table @MilestoneTask
         where_ $
-            ms ^. MilestoneTaskMilestoneId ==. val milestoneId &&.
-            ms ^. MilestoneTaskTaskId ==. val taskId
-        pure ms
+            mt ^. MilestoneTaskMilestoneId ==. val milestoneId &&.
+            mt ^. MilestoneTaskTaskId ==. val taskId
+        pure mt
 
 -- | Select milestones linked to a task.
 selectTaskMilestones ::
@@ -59,17 +59,17 @@ selectMilestoneTasks ::
     SqlPersistT m [Entity Task]
 selectMilestoneTasks milestoneId limitTo offsetBy =
     select $ do
-        (s :& mt) <- from $
+        (t :& mt) <- from $
             table @Task
             `innerJoin`
             table @MilestoneTask
-            `on` \(s :& mt) -> s ^. TaskId ==. mt ^. MilestoneTaskTaskId
+            `on` \(t :& mt) -> t ^. TaskId ==. mt ^. MilestoneTaskTaskId
         where_ $
             mt ^. MilestoneTaskMilestoneId ==. val milestoneId
         orderBy
-            [asc $ s ^. TaskId]
+            [asc $ t ^. TaskId]
         limit
             limitTo
         offset
             offsetBy
-        pure s
+        pure t

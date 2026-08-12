@@ -13,7 +13,7 @@ import Database.Persist.Sql
 import Yesod.Core
 import Yesod.Persist.Core (get404, runDB)
 
--- | Query boards ordered by position and name.
+-- | List a page of boards ordered by position and name.
 listBoards :: Int -> Int -> Handler [Entity Board]
 listBoards limitTo offsetBy =
     runDB $
@@ -55,7 +55,7 @@ deleteBoard boardId =
         deleteWhere [TaskBoardId ==. boardId]
         delete boardId
 
--- | List all tasks on a board.
+-- | List a page of tasks on a board.
 listTasks :: BoardId -> Int -> Int -> Handler [Entity Task]
 listTasks boardId limitTo offsetBy =
     runDB $
@@ -96,7 +96,7 @@ deleteTask taskId =
         _ <- get404 taskId
         delete taskId
 
--- | List a page of milestones.
+-- | List a page of milestones ordered by start date descending.
 listMilestones :: Int -> Int -> Handler [Entity Milestone]
 listMilestones limitTo offsetBy =
     runDB $
@@ -152,7 +152,7 @@ createMilestoneTask milestoneId taskId = do
                 insertEntity $ MilestoneTask milestoneId taskId
     pure milestoneTask
 
--- | List all milestones linked to a task.
+-- | List a page of milestones linked to a task.
 listTaskMilestones :: TaskId -> Int -> Int -> Handler [Entity Milestone]
 listTaskMilestones taskId limitTo offsetBy =
     runDB $
@@ -161,7 +161,7 @@ listTaskMilestones taskId limitTo offsetBy =
             (fromIntegral limitTo)
             (fromIntegral offsetBy)
 
--- | List all tasks linked to a milestone.
+-- | List a page of tasks linked to a milestone.
 listMilestoneTasks :: MilestoneId -> Int -> Int -> Handler [Entity Task]
 listMilestoneTasks milestoneId limitTo offsetBy = do
     runDB $
