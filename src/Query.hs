@@ -33,7 +33,7 @@ selectTaskMilestones ::
     Int64 ->
     Int64 ->
     SqlPersistT m [Entity Milestone]
-selectTaskMilestones taskId limit_ offset_ =
+selectTaskMilestones taskId limitTo offsetBy =
     select $ do
         (m :& mt) <- from $
             table @Milestone
@@ -45,9 +45,9 @@ selectTaskMilestones taskId limit_ offset_ =
         orderBy
             [desc $ m ^. MilestoneStartDate]
         limit
-            limit_
+            limitTo
         offset
-            offset_
+            offsetBy
         pure m
 
 -- | Select tasks linked to a milestone.
@@ -57,7 +57,7 @@ selectMilestoneTasks ::
     Int64 ->
     Int64 ->
     SqlPersistT m [Entity Task]
-selectMilestoneTasks milestoneId limit_ offset_ =
+selectMilestoneTasks milestoneId limitTo offsetBy =
     select $ do
         (s :& mt) <- from $
             table @Task
@@ -69,7 +69,7 @@ selectMilestoneTasks milestoneId limit_ offset_ =
         orderBy
             [asc $ s ^. TaskId]
         limit
-            limit_
+            limitTo
         offset
-            offset_
+            offsetBy
         pure s
