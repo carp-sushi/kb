@@ -14,10 +14,8 @@ import Yesod.Core
 
 -- | Get a page of boards.
 getBoardsR :: Handler Value
-getBoardsR = do
-    (pageSize, pageNumber, pageOffset) <- readPageParams
-    boards <- listBoards pageSize pageOffset
-    returnJson $ pageDto pageSize pageNumber boards
+getBoardsR =
+    queryPage listBoards
 
 -- | Create a board.
 postBoardsR :: Handler Value
@@ -50,10 +48,8 @@ deleteBoardR =
 
 -- | Get all tasks on a board.
 getBoardTasksR :: BoardId -> Handler Value
-getBoardTasksR boardId = do
-    (pageSize, pageNumber, pageOffset) <- readPageParams
-    tasks <- listTasks boardId pageSize pageOffset
-    returnJson $ pageDto pageSize pageNumber tasks
+getBoardTasksR boardId =
+    queryPage $ listTasks boardId
 
 -- | Create a task.
 postTasksR :: Handler Value
@@ -86,17 +82,13 @@ deleteTaskR =
 
 -- | Get all milestones linked to a task.
 getTaskMilestonesR :: TaskId -> Handler Value
-getTaskMilestonesR taskId = do
-    (pageSize, pageNumber, pageOffset) <- readPageParams
-    milestones <- listTaskMilestones taskId pageSize pageOffset
-    returnJson $ pageDto pageSize pageNumber milestones
+getTaskMilestonesR taskId =
+    queryPage $ listTaskMilestones taskId
 
 -- | List all milestones.
 getMilestonesR :: Handler Value
-getMilestonesR = do
-    (pageSize, pageNumber, pageOffset) <- readPageParams
-    milestones <- listMilestones pageSize pageOffset
-    returnJson $ pageDto pageSize pageNumber milestones
+getMilestonesR =
+    queryPage listMilestones
 
 -- | Create a milestone.
 postMilestonesR :: Handler Value
@@ -128,10 +120,8 @@ deleteMilestoneR =
 
 -- | Get all tasks linked to a milestone.
 getMilestoneTasksR :: MilestoneId -> Handler Value
-getMilestoneTasksR milestoneId = do
-    (pageSize, pageNumber, pageOffset) <- readPageParams
-    tasks <- listMilestoneTasks milestoneId pageSize pageOffset
-    returnJson $ pageDto pageSize pageNumber tasks
+getMilestoneTasksR milestoneId =
+    queryPage $ listMilestoneTasks milestoneId
 
 -- | Link a milestone to a task
 postMilestoneTasksR :: MilestoneId -> Handler Value
@@ -144,3 +134,10 @@ postMilestoneTasksR milestoneId =
 deleteMilestoneTaskR :: MilestoneId -> TaskId -> Handler ()
 deleteMilestoneTaskR =
     deleteMilestoneTask
+
+-- Helper: run a page query and return as JSON.
+queryPage :: (ToJSON a) => (Int -> Int -> Handler [a]) -> Handler Value
+queryPage listQuery = do
+    (pageSize, pageNumber, pageOffset) <- readPageParams
+    pageData <- listQuery pageSize pageOffset
+    returnJson $ pageDto pageSize pageNumber pageData
