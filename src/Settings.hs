@@ -9,6 +9,7 @@ module Settings (
 
 import Data.Configurator
 import Data.Text (Text, unpack)
+import Text.Read (readMaybe)
 
 -- | App settings type.
 data Settings = Settings
@@ -31,7 +32,14 @@ loadSettings filePath = do
     settingsVerboseLogging <- require cfg "verboseLogging"
     pure Settings{..}
 
--- | Read HTTP port from settings as an Int.
+-- | Read HTTP port from settings or return a default (3000).
 settingsReadHttpPort :: Settings -> Int
-settingsReadHttpPort =
-    read . unpack . settingsHttpPort
+settingsReadHttpPort settings =
+    case maybeReadHttpPort settings of
+        (Just port) -> port
+        Nothing -> 3000
+
+-- Helper: Read HTTP port from settings if possible.
+maybeReadHttpPort :: Settings -> Maybe Int
+maybeReadHttpPort =
+    readMaybe . unpack . settingsHttpPort

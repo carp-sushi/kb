@@ -30,8 +30,8 @@ findMilestoneTask milestoneId taskId =
 selectTaskMilestones ::
     (MonadIO m) =>
     TaskId ->
-    Int64 ->
-    Int64 ->
+    Int ->
+    Int ->
     SqlPersistT m [Entity Milestone]
 selectTaskMilestones taskId limitTo offsetBy =
     select $ do
@@ -45,17 +45,17 @@ selectTaskMilestones taskId limitTo offsetBy =
         orderBy
             [desc $ m ^. MilestoneStartDate]
         limit
-            limitTo
+            (toInt64 limitTo)
         offset
-            offsetBy
+            (toInt64 offsetBy)
         pure m
 
 -- | Select tasks linked to a milestone.
 selectMilestoneTasks ::
     (MonadIO m) =>
     MilestoneId ->
-    Int64 ->
-    Int64 ->
+    Int ->
+    Int ->
     SqlPersistT m [Entity Task]
 selectMilestoneTasks milestoneId limitTo offsetBy =
     select $ do
@@ -69,7 +69,12 @@ selectMilestoneTasks milestoneId limitTo offsetBy =
         orderBy
             [asc $ t ^. TaskId]
         limit
-            limitTo
+            (toInt64 limitTo)
         offset
-            offsetBy
+            (toInt64 offsetBy)
         pure t
+
+-- TODO: This is listed as a dangerous function.
+--       Find a better way to do this.
+toInt64 :: Int -> Int64
+toInt64 = fromIntegral

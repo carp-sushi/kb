@@ -158,8 +158,8 @@ listTaskMilestones taskId limitTo offsetBy =
     runDB $
         Query.selectTaskMilestones
             taskId
-            (fromIntegral limitTo)
-            (fromIntegral offsetBy)
+            limitTo
+            offsetBy
 
 -- | List a page of tasks linked to a milestone.
 listMilestoneTasks :: MilestoneId -> Int -> Int -> Handler [Entity Task]
@@ -167,8 +167,8 @@ listMilestoneTasks milestoneId limitTo offsetBy =
     runDB $
         Query.selectMilestoneTasks
             milestoneId
-            (fromIntegral limitTo)
-            (fromIntegral offsetBy)
+            limitTo
+            offsetBy
 
 -- | Delete a link between a milestone and a task.
 deleteMilestoneTask :: MilestoneId -> TaskId -> Handler ()
