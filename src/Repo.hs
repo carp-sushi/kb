@@ -61,7 +61,11 @@ listTasks boardId limitTo offsetBy =
     runDB $
         selectList
             [TaskBoardId ==. boardId]
-            [LimitTo limitTo, OffsetBy offsetBy, Asc TaskId]
+            [ LimitTo limitTo
+            , OffsetBy offsetBy
+            , Desc TaskPoints
+            , Asc TaskName
+            ]
 
 -- | Lookup a task by id.
 lookupTask :: TaskId -> Handler Task

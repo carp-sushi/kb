@@ -26,7 +26,7 @@ findMilestoneTask milestoneId taskId =
             mt ^. MilestoneTaskTaskId ==. val taskId
         pure mt
 
--- | Select milestones linked to a task.
+-- | Select milestones linked to a task ordered by start date.
 selectTaskMilestones ::
     (MonadIO m) =>
     TaskId ->
@@ -50,7 +50,7 @@ selectTaskMilestones taskId limitTo offsetBy =
             (toInt64 offsetBy)
         pure m
 
--- | Select tasks linked to a milestone.
+-- | Select tasks linked to a milestone ordered by points and name.
 selectMilestoneTasks ::
     (MonadIO m) =>
     MilestoneId ->
@@ -67,7 +67,7 @@ selectMilestoneTasks milestoneId limitTo offsetBy =
         where_ $
             mt ^. MilestoneTaskMilestoneId ==. val milestoneId
         orderBy
-            [asc $ t ^. TaskId]
+            [desc $ t ^. TaskPoints, asc $ t ^. TaskName]
         limit
             (toInt64 limitTo)
         offset
