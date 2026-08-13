@@ -1,18 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Dto (
-    boardDto,
-    milestoneDto,
-    pageDto,
-    taskDto,
+    boardJson,
+    milestoneJson,
+    pageJson,
+    taskJson,
 ) where
 
 import Data.Aeson
 import Model
 
 -- | Create a JSON data transfer object for a board.
-boardDto :: BoardId -> Board -> Value
-boardDto boardId (Board name color position) =
+boardJson :: BoardId -> Board -> Value
+boardJson boardId (Board name color position) =
     object
         [ "id" .= boardId
         , "name" .= name
@@ -21,8 +21,8 @@ boardDto boardId (Board name color position) =
         ]
 
 -- | Create a JSON data transfer object for a milestone.
-milestoneDto :: MilestoneId -> Milestone -> Value
-milestoneDto milestoneId (Milestone name startDate completeDate) =
+milestoneJson :: MilestoneId -> Milestone -> Value
+milestoneJson milestoneId (Milestone name startDate completeDate) =
     object
         [ "id" .= milestoneId
         , "name" .= name
@@ -30,24 +30,24 @@ milestoneDto milestoneId (Milestone name startDate completeDate) =
         , "completeDate" .= completeDate
         ]
 
--- | Create a JSON data transfer object for a task.
-taskDto :: TaskId -> Task -> Value
-taskDto taskId (Task boardId name points status) =
-    object
-        [ "id" .= taskId
-        , "boardId" .= boardId
-        , "name" .= name
-        , "points" .= points
-        , "status" .= status
-        ]
-
--- | Create a page JSON object.
-pageDto :: (ToJSON a) => Int -> Int -> [a] -> Value
-pageDto pageSize pageNumber pageData =
+-- | Create a JSON data transfer object for a page.
+pageJson :: (ToJSON a) => Int -> Int -> [a] -> Value
+pageJson pageSize pageNumber pageData =
     object
         [ "pageSize" .= pageSize
         , "previousPageNumber" .= max 1 (pageNumber - 1)
         , "pageNumber" .= pageNumber
         , "nextPageNumber" .= (pageNumber + 1)
         , "pageData" .= pageData
+        ]
+
+-- | Create a JSON data transfer object for a task.
+taskJson :: TaskId -> Task -> Value
+taskJson taskId (Task boardId name points status) =
+    object
+        [ "id" .= taskId
+        , "boardId" .= boardId
+        , "name" .= name
+        , "points" .= points
+        , "status" .= status
         ]

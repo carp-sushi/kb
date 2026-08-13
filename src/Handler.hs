@@ -29,7 +29,7 @@ postBoardsR = do
 getBoardR :: BoardId -> Handler Value
 getBoardR boardId =
     lookupBoard boardId
-        >>= returnJson . boardDto boardId
+        >>= returnJson . boardJson boardId
 
 -- | Update a board.
 putBoardR :: BoardId -> Handler Value
@@ -41,7 +41,7 @@ putBoardR boardId = do
   where
     update =
         updateBoard boardId
-            >=> returnJson . boardDto boardId
+            >=> returnJson . boardJson boardId
 
 -- | Delete a board and all tasks on the board.
 deleteBoardR :: BoardId -> Handler ()
@@ -65,7 +65,7 @@ postTasksR = do
 getTaskR :: TaskId -> Handler Value
 getTaskR taskId =
     lookupTask taskId
-        >>= returnJson . taskDto taskId
+        >>= returnJson . taskJson taskId
 
 -- | Update a task.
 putTaskR :: TaskId -> Handler Value
@@ -77,7 +77,7 @@ putTaskR taskId = do
   where
     update =
         updateTask taskId
-            >=> returnJson . taskDto taskId
+            >=> returnJson . taskJson taskId
 
 -- | Delete a task.
 deleteTaskR :: TaskId -> Handler ()
@@ -106,7 +106,7 @@ postMilestonesR = do
 getMilestoneR :: MilestoneId -> Handler Value
 getMilestoneR milestoneId =
     lookupMilestone milestoneId
-        >>= returnJson . milestoneDto milestoneId
+        >>= returnJson . milestoneJson milestoneId
 
 putMilestoneR :: MilestoneId -> Handler Value
 putMilestoneR milestoneId = do
@@ -117,7 +117,7 @@ putMilestoneR milestoneId = do
   where
     update =
         updateMilestone milestoneId
-            >=> returnJson . milestoneDto milestoneId
+            >=> returnJson . milestoneJson milestoneId
 
 -- | Delete a milestone.
 deleteMilestoneR :: MilestoneId -> Handler ()
@@ -146,4 +146,4 @@ queryPage :: (ToJSON a) => (Int -> Int -> Handler [a]) -> Handler Value
 queryPage listQuery = do
     (pageSize, pageNumber, pageOffset) <- readPageParams
     pageData <- listQuery pageSize pageOffset
-    returnJson $ pageDto pageSize pageNumber pageData
+    returnJson $ pageJson pageSize pageNumber pageData
