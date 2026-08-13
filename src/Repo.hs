@@ -110,7 +110,7 @@ listMilestones limitTo offsetBy =
 
 -- | Insert a milestone in the database and return the inserted entity.
 createMilestone :: Milestone -> Handler (Entity Milestone)
-createMilestone milestone = do
+createMilestone milestone =
     runDB $ insertEntity milestone
 
 -- | Lookup a milestone by id.
@@ -163,7 +163,7 @@ listTaskMilestones taskId limitTo offsetBy =
 
 -- | List a page of tasks linked to a milestone.
 listMilestoneTasks :: MilestoneId -> Int -> Int -> Handler [Entity Task]
-listMilestoneTasks milestoneId limitTo offsetBy = do
+listMilestoneTasks milestoneId limitTo offsetBy =
     runDB $
         Query.selectMilestoneTasks
             milestoneId
