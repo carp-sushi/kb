@@ -8,6 +8,7 @@
 module Application (
     makeApp,
     runApp,
+    runMigrations,
 ) where
 
 import qualified Database as DB
@@ -54,3 +55,11 @@ warpSettings :: App -> Warp.Settings
 warpSettings app =
     Warp.setPort (settingsReadHttpPort $ appSettings app) $
         Warp.setHost "!4" Warp.defaultSettings
+
+-- | Run database migrations without starting the application.
+runMigrations :: FilePath -> IO ()
+runMigrations filePath = do
+    settings <- loadSettings filePath
+    pool <- DB.createPool settings
+    say $ "Running migrations using database url " <> settingsDatabaseUrl settings
+    DB.runMigrations settings pool

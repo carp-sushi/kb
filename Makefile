@@ -18,7 +18,7 @@ lint:
 	@hlint src/*.hs app/*.hs
 
 run:
-	@stack run -- config/dev/settings
+	@stack run -- kb-server config/dev/settings
 
 clean:
 	@stack purge
