@@ -3,7 +3,7 @@
 all: format build test
 
 # The formatter mangles esqueleto queries, so format all code except those.
-HS_FILES = $(filter-out src/Query.hs, $(shell find app src -name "*.hs"))
+HS_FILES = $(filter-out src/Query.hs, $(shell find app migrator src -name "*.hs"))
 
 format:
 	@fourmolu -q -i $(HS_FILES)
@@ -15,7 +15,7 @@ test:
 	@stack test
 
 lint:
-	@hlint src/*.hs app/*.hs
+	@hlint src/*.hs app/*.hs migrator/*.hs
 
 run:
 	@stack run -- kb-server config/dev/settings
