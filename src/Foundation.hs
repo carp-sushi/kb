@@ -23,7 +23,7 @@ data App = App
     }
 
 -- Generate resources and routes.
-mkYesodData "App" $(parseRoutesFile "dsl/routes")
+mkYesodData "App" $(parseRoutesFile "config/routes")
 
 -- Customize the Yesod application.
 instance Yesod App where

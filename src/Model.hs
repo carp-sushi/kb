@@ -58,4 +58,4 @@ instance FromJSON TaskStatus
 -- | Define database models and migrations.
 share
     [mkPersist sqlSettings, mkMigrate "migrateAll"]
-    $(persistFileWith lowerCaseSettings "dsl/models")
+    $(persistFileWith lowerCaseSettings "config/models")

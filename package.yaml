@@ -43,7 +43,7 @@ library:
 executables:
   kb-migrator:
     main: Main.hs
-    source-dirs: migrator
+    source-dirs: app/migrator
     ghc-options:
     - -threaded
     - -rtsopts
@@ -52,7 +52,7 @@ executables:
     - kb
   kb-server:
     main: Main.hs
-    source-dirs: app
+    source-dirs: app/server
     ghc-options:
     - -threaded
     - -rtsopts
