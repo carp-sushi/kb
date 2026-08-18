@@ -1,3 +1,4 @@
+environment = "prod"
 databaseUrl = "host=$(DB_HOST) dbname=$(DB_NAME) user=$(DB_USER) password=$(DB_PASS) port=$(DB_PORT)"
 poolSize = 10
 runMigrations = false

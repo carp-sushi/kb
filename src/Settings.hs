@@ -18,6 +18,7 @@ data Settings = Settings
     , settingsHttpPort :: Text
     , settingsRunMigrations :: Bool
     , settingsVerboseLogging :: Bool
+    , settingsEnvironment :: Text
     }
     deriving (Eq, Ord, Show)
 
@@ -30,6 +31,7 @@ loadSettings filePath = do
     settingsHttpPort <- require cfg "httpPort"
     settingsRunMigrations <- require cfg "runMigrations"
     settingsVerboseLogging <- require cfg "verboseLogging"
+    settingsEnvironment <- require cfg "environment"
     pure Settings{..}
 
 -- | Read HTTP port from settings or return a default (3000).

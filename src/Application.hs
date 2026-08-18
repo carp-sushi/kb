@@ -61,5 +61,5 @@ runMigrations :: FilePath -> IO ()
 runMigrations filePath = do
     settings <- loadSettings filePath
     pool <- DB.createPool settings
-    say $ "Running migrations using database url " <> settingsDatabaseUrl settings
+    say $ "Running migrations in the " <> settingsEnvironment settings <> " environment"
     DB.runMigrations settings pool
