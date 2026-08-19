@@ -1,5 +1,3 @@
-{-# LANGUAGE BlockArguments #-}
-
 module Handler where
 
 import Dto
