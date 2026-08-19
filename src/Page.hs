@@ -1,19 +1,28 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Page (readPageParams) where
+module Page (
+    PageParams (..),
+    readPageParams,
+) where
 
 import Data.Text (Text, unpack)
 import Foundation
 import Text.Read (readMaybe)
 import Yesod.Core
 
+-- | Parameters for querying a page of data.
+data PageParams
+    = PageParams !Int !Int !Int
+    deriving
+        (Eq, Ord, Show)
+
 -- | Read page parameters from request query params.
-readPageParams :: Handler (Int, Int, Int)
+readPageParams :: Handler PageParams
 readPageParams = do
     pageSize <- readPageSize
     pageNumber <- readPageNumber
     let pageOffset = pageSize * (pageNumber - 1)
-    pure (pageSize, pageNumber, pageOffset)
+    pure $ PageParams pageSize pageNumber pageOffset
 
 -- Read page size query param
 readPageSize :: Handler Int

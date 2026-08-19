@@ -22,8 +22,8 @@ postBoardsR :: Handler Value
 postBoardsR = do
     body <- requireCheckJsonBody :: Handler Board
     case validateBoard body of
-        (Left errors) -> invalidArgs errors
-        (Right board) -> (createBoard >=> returnJson) board
+        Left errors -> invalidArgs errors
+        Right board -> (createBoard >=> returnJson) board
 
 -- | Get a board.
 getBoardR :: BoardId -> Handler Value
@@ -36,8 +36,8 @@ putBoardR :: BoardId -> Handler Value
 putBoardR boardId = do
     body <- requireCheckJsonBody :: Handler Board
     case validateBoard body of
-        (Left errors) -> invalidArgs errors
-        (Right board) -> update board
+        Left errors -> invalidArgs errors
+        Right board -> update board
   where
     update =
         updateBoard boardId
@@ -58,8 +58,8 @@ postTasksR :: Handler Value
 postTasksR = do
     body <- requireCheckJsonBody :: Handler Task
     case validateTask body of
-        (Left errors) -> invalidArgs errors
-        (Right task) -> (createTask >=> returnJson) task
+        Left errors -> invalidArgs errors
+        Right task -> (createTask >=> returnJson) task
 
 -- | Get a task.
 getTaskR :: TaskId -> Handler Value
@@ -72,8 +72,8 @@ putTaskR :: TaskId -> Handler Value
 putTaskR taskId = do
     body <- requireCheckJsonBody :: Handler Task
     case validateTask body of
-        (Left errors) -> invalidArgs errors
-        (Right task) -> update task
+        Left errors -> invalidArgs errors
+        Right task -> update task
   where
     update =
         updateTask taskId
@@ -99,8 +99,8 @@ postMilestonesR :: Handler Value
 postMilestonesR = do
     body <- requireCheckJsonBody :: Handler Milestone
     case validateMilestone body of
-        (Left errors) -> invalidArgs errors
-        (Right milestone) -> (createMilestone >=> returnJson) milestone
+        Left errors -> invalidArgs errors
+        Right milestone -> (createMilestone >=> returnJson) milestone
 
 -- | Get a milestone.
 getMilestoneR :: MilestoneId -> Handler Value
@@ -112,8 +112,8 @@ putMilestoneR :: MilestoneId -> Handler Value
 putMilestoneR milestoneId = do
     body <- requireCheckJsonBody :: Handler Milestone
     case validateMilestone body of
-        (Left errors) -> invalidArgs errors
-        (Right milestone) -> update milestone
+        Left errors -> invalidArgs errors
+        Right milestone -> update milestone
   where
     update =
         updateMilestone milestoneId
@@ -144,6 +144,6 @@ deleteMilestoneTaskR =
 -- Helper: run a page query and return as JSON.
 queryPage :: (ToJSON a) => (Int -> Int -> Handler [a]) -> Handler Value
 queryPage listQuery = do
-    (pageSize, pageNumber, pageOffset) <- readPageParams
+    (PageParams pageSize pageNumber pageOffset) <- readPageParams
     pageData <- listQuery pageSize pageOffset
     returnJson $ pageJson pageSize pageNumber pageData

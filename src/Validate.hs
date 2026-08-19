@@ -71,8 +71,8 @@ validateTask' (Task boardId name points status) =
 mkEither :: (a -> Validation [Error] a) -> a -> Either [T.Text] a
 mkEither vaidate a =
     case vaidate a of
-        (Success a') -> Right a'
-        (Failure errors) -> Left $ fmap errorText errors
+        Success a' -> Right a'
+        Failure errors -> Left $ fmap errorText errors
 
 -- Internal name validation
 validateName :: T.Text -> Validation [Error] T.Text
