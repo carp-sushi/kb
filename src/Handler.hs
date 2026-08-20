@@ -51,6 +51,13 @@ getBoardTasksR :: BoardId -> Handler Value
 getBoardTasksR boardId =
     queryPage $ listTasks boardId
 
+-- | Move a task to a board.
+postBoardTasksR :: BoardId -> Handler Value
+postBoardTasksR boardId = do
+    taskId <- requireCheckJsonBody :: Handler TaskId
+    task <- moveTaskToBoard boardId taskId
+    returnJson $ taskJson taskId task
+
 -- | Create a task.
 postTasksR :: Handler Value
 postTasksR = do

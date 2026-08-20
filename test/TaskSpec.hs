@@ -141,3 +141,29 @@ spec = withApp $ do
                 setMethod "DELETE"
                 setUrl $ TaskR (toSqlKey 0)
             statusIs 404
+
+    describe "move task to another board" $ do
+        it "returns 200 when the target board exists" $ do
+            (boardId, taskId) <- runDB $ do
+                bid1 <- insert $ Board "Board 1" Red 1
+                bid2 <- insert $ Board "Board 2" Blue 2
+                tid <- insert $ Task bid1 "Task" 1 Todo
+                pure (bid2, tid)
+            request $ do
+                setMethod "POST"
+                setUrl $ BoardTasksR boardId
+                addRequestHeader ("Content-Type", "application/json")
+                setRequestBody $ encode $ taskId
+            statusIs 200
+
+        it "returns 404 when the target board does not exist" $ do
+            taskId <- runDB $ do
+                bid <- insert $ Board "Board" Red 1
+                tid <- insert $ Task bid "Task" 1 Todo
+                pure tid
+            request $ do
+                setMethod "POST"
+                setUrl $ BoardTasksR (toSqlKey 0)
+                addRequestHeader ("Content-Type", "application/json")
+                setRequestBody $ encode $ taskId
+            statusIs 404

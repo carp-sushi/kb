@@ -91,6 +91,14 @@ updateTask taskId task =
             ]
         get404 taskId
 
+-- | Move task to another board.
+moveTaskToBoard :: BoardId -> TaskId -> Handler Task
+moveTaskToBoard boardId taskId =
+    runDB $ do
+        _ <- get404 boardId
+        update taskId [TaskBoardId =. boardId]
+        get404 taskId
+
 -- | Delete a task.
 deleteTask :: TaskId -> Handler ()
 deleteTask taskId =
