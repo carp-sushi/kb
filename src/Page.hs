@@ -18,43 +18,24 @@ data PageParams
 
 -- | Read page parameters from request query params.
 readPageParams :: Handler PageParams
-readPageParams = do
-    pageSize <- readPageSize
-    pageNumber <- readPageNumber
-    let pageOffset = pageSize * (pageNumber - 1)
-    pure $ PageParams pageSize pageNumber pageOffset
+readPageParams =
+    (mkPageParams . parsePageSize <$> lookupGetParam "pageSize")
+        <*> (parsePageNumber <$> lookupGetParam "pageNumber")
+  where
+    mkPageParams s n =
+        PageParams s n (s * (n - 1))
 
--- Read page size query param
-readPageSize :: Handler Int
-readPageSize = do
-    param <- lookupGetParam "pageSize"
-    pure $ parsePageSize param
-
--- Parse page size and clamp it within a set range.
+-- Parse page size and clamp it within a set range (1-100, default 10).
 parsePageSize :: Maybe Text -> Int
-parsePageSize = clamp . parseInt
-  where
-    -- default page size
-    clamp Nothing = 10
-    -- page size must be a positive integer between 1 and 100
-    clamp (Just n) = max 1 (min n 100)
+parsePageSize =
+    maybe 10 (max 1 . min 100) . parseInt
 
--- Read page number query param
-readPageNumber :: Handler Int
-readPageNumber = do
-    param <- lookupGetParam "pageNumber"
-    pure $ parsePageNumber param
-
--- Parse page number and clamp it within a set range.
+-- Parse page number and ensure it is a positive integer (default 1).
 parsePageNumber :: Maybe Text -> Int
-parsePageNumber = clamp . parseInt
-  where
-    -- default page number
-    clamp Nothing = 1
-    -- page number must be a positive integer >= 1
-    clamp (Just n) = max n 1
+parsePageNumber =
+    maybe 1 (max 1) . parseInt
 
 -- Convert text to int if defined.
 parseInt :: Maybe Text -> Maybe Int
-parseInt mt =
-    mt >>= readMaybe . unpack
+parseInt =
+    (>>= readMaybe . unpack)
