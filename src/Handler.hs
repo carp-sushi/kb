@@ -21,7 +21,9 @@ postBoardsR = do
     body <- requireCheckJsonBody :: Handler Board
     case validateBoard body of
         Left errors -> invalidArgs errors
-        Right board -> (createBoard >=> returnJson) board
+        Right board -> create board
+  where
+    create = createBoard >=> returnJson
 
 -- | Get a board.
 getBoardR :: BoardId -> Handler Value
@@ -64,7 +66,9 @@ postTasksR = do
     body <- requireCheckJsonBody :: Handler Task
     case validateTask body of
         Left errors -> invalidArgs errors
-        Right task -> (createTask >=> returnJson) task
+        Right task -> create task
+  where
+    create = createTask >=> returnJson
 
 -- | Get a task.
 getTaskR :: TaskId -> Handler Value
@@ -105,7 +109,9 @@ postMilestonesR = do
     body <- requireCheckJsonBody :: Handler Milestone
     case validateMilestone body of
         Left errors -> invalidArgs errors
-        Right milestone -> (createMilestone >=> returnJson) milestone
+        Right milestone -> create milestone
+  where
+    create = createMilestone >=> returnJson
 
 -- | Get a milestone.
 getMilestoneR :: MilestoneId -> Handler Value
