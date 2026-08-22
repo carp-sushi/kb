@@ -1,6 +1,5 @@
 environment = "dev"
 databaseUrl = "host=$(DEV_DB_HOST) dbname=$(DEV_DB_NAME) user=$(DEV_DB_USER) password=$(DEV_DB_PASS) port=$(DEV_DB_PORT)"
 poolSize = 5
-runMigrations = true
 httpPort = "$(DEV_HTTP_PORT)"
 verboseLogging = true

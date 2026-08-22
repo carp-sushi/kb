@@ -12,12 +12,14 @@ build:
 	@stack build
 
 test:
+	@stack run -- kb-migrator config/test/settings
 	@stack test
 
 lint:
 	@hlint src/*.hs app/server/*.hs app/migrator/*.hs
 
 run:
+	@stack run -- kb-migrator config/dev/settings
 	@stack run -- kb-server config/dev/settings
 
 clean:

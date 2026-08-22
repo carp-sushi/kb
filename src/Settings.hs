@@ -16,7 +16,6 @@ data Settings = Settings
     { settingsDatabaseUrl :: Text
     , settingsPoolSize :: Int
     , settingsHttpPort :: Text
-    , settingsRunMigrations :: Bool
     , settingsVerboseLogging :: Bool
     , settingsEnvironment :: Text
     }
@@ -29,7 +28,6 @@ loadSettings filePath = do
     settingsDatabaseUrl <- require cfg "databaseUrl"
     settingsPoolSize <- require cfg "poolSize"
     settingsHttpPort <- require cfg "httpPort"
-    settingsRunMigrations <- require cfg "runMigrations"
     settingsVerboseLogging <- require cfg "verboseLogging"
     settingsEnvironment <- require cfg "environment"
     pure Settings{..}
@@ -38,8 +36,8 @@ loadSettings filePath = do
 settingsReadHttpPort :: Settings -> Int
 settingsReadHttpPort settings =
     case maybeReadHttpPort settings of
-        (Just port) -> port
         Nothing -> 3000
+        Just port -> port
 
 -- Helper: Read HTTP port from settings if possible.
 maybeReadHttpPort :: Settings -> Maybe Int

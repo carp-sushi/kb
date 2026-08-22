@@ -16,7 +16,6 @@ import Handler
 import qualified Logger
 import Settings
 
-import Control.Monad (when)
 import qualified Network.Wai.Handler.Warp as Warp
 import Say (say)
 import Yesod.Core
@@ -38,8 +37,6 @@ makeApp :: Settings -> IO App
 makeApp appSettings = do
     appConnectionPool <- DB.createPool appSettings
     appLogger <- Logger.makeAppLogger
-    when (settingsRunMigrations appSettings) $
-        DB.runMigrations appSettings appConnectionPool
     pure App{..}
 
 -- Create a WAI Application and apply request logger middleware.
