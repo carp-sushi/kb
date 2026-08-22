@@ -1,6 +1,6 @@
 .PHONY: all format build test lint run clean watch
 
-all: format build test
+all: format test
 
 # The formatter mangles esqueleto queries, so skip formatting that file.
 HS_FILES = $(filter-out src/Query.hs, $(shell find app/**/*.hs src -name "*.hs"))
