@@ -8,6 +8,7 @@ module Settings (
 ) where
 
 import Data.Configurator
+import Data.Maybe (fromMaybe)
 import Data.Text (Text, unpack)
 import Text.Read (readMaybe)
 
@@ -34,12 +35,5 @@ loadSettings filePath = do
 
 -- | Read HTTP port from settings or return a default (3000).
 settingsReadHttpPort :: Settings -> Int
-settingsReadHttpPort settings =
-    case maybeReadHttpPort settings of
-        Nothing -> 3000
-        Just port -> port
-
--- Helper: Read HTTP port from settings if possible.
-maybeReadHttpPort :: Settings -> Maybe Int
-maybeReadHttpPort =
-    readMaybe . unpack . settingsHttpPort
+settingsReadHttpPort =
+    fromMaybe 3000 . readMaybe . unpack . settingsHttpPort

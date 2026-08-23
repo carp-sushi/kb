@@ -24,9 +24,10 @@ listBoards limitTo offsetBy =
             ]
 
 -- | Lookup a board by id.
-lookupBoard :: BoardId -> Handler Board
-lookupBoard boardId =
-    runDB $ get404 boardId
+lookupBoard :: BoardId -> Handler (Entity Board)
+lookupBoard boardId = do
+    board <- runDB $ get404 boardId
+    pure $ mkEntity boardId board
 
 -- | Insert a board in the database and return the inserted entity.
 createBoard :: Board -> Handler (Entity Board)
@@ -34,9 +35,9 @@ createBoard board =
     runDB $ insertEntity board
 
 -- | Update a board in the database and return the updated record.
-updateBoard :: BoardId -> Board -> Handler Board
-updateBoard boardId board =
-    runDB $ do
+updateBoard :: BoardId -> Board -> Handler (Entity Board)
+updateBoard boardId board = do
+    updated <- runDB $ do
         update
             boardId
             [ BoardName =. boardName board
@@ -44,6 +45,7 @@ updateBoard boardId board =
             , BoardPosition =. boardPosition board
             ]
         get404 boardId
+    pure $ mkEntity boardId updated
 
 -- | Delete a board and all tasks on the board.
 deleteBoard :: BoardId -> Handler ()
@@ -66,9 +68,10 @@ listTasks boardId limitTo offsetBy =
             ]
 
 -- | Lookup a task by id.
-lookupTask :: TaskId -> Handler Task
-lookupTask taskId =
-    runDB $ get404 taskId
+lookupTask :: TaskId -> Handler (Entity Task)
+lookupTask taskId = do
+    task <- runDB $ get404 taskId
+    pure $ mkEntity taskId task
 
 -- | Insert a task in the database and return the inserted entity.
 createTask :: Task -> Handler (Entity Task)
@@ -78,9 +81,9 @@ createTask task =
         insertEntity task
 
 -- | Update a task in the database and return the updated record.
-updateTask :: TaskId -> Task -> Handler Task
-updateTask taskId task =
-    runDB $ do
+updateTask :: TaskId -> Task -> Handler (Entity Task)
+updateTask taskId task = do
+    updated <- runDB $ do
         _ <- get404 $ taskBoardId task
         update
             taskId
@@ -90,14 +93,16 @@ updateTask taskId task =
             , TaskStatus =. taskStatus task
             ]
         get404 taskId
+    pure $ mkEntity taskId updated
 
 -- | Move task to another board.
-moveTaskToBoard :: BoardId -> TaskId -> Handler Task
-moveTaskToBoard boardId taskId =
-    runDB $ do
+moveTaskToBoard :: BoardId -> TaskId -> Handler (Entity Task)
+moveTaskToBoard boardId taskId = do
+    task <- runDB $ do
         _ <- get404 boardId
         update taskId [TaskBoardId =. boardId]
         get404 taskId
+    pure $ mkEntity taskId task
 
 -- | Delete a task.
 deleteTask :: TaskId -> Handler ()
@@ -124,14 +129,15 @@ createMilestone milestone =
     runDB $ insertEntity milestone
 
 -- | Lookup a milestone by id.
-lookupMilestone :: MilestoneId -> Handler Milestone
-lookupMilestone milestoneId =
-    runDB $ get404 milestoneId
+lookupMilestone :: MilestoneId -> Handler (Entity Milestone)
+lookupMilestone milestoneId = do
+    milestone <- runDB $ get404 milestoneId
+    pure $ mkEntity milestoneId milestone
 
 -- | Update a milestone in the database and return the updated record.
-updateMilestone :: MilestoneId -> Milestone -> Handler Milestone
-updateMilestone milestoneId milestone =
-    runDB $ do
+updateMilestone :: MilestoneId -> Milestone -> Handler (Entity Milestone)
+updateMilestone milestoneId milestone = do
+    updated <- runDB $ do
         update
             milestoneId
             [ MilestoneName =. milestoneName milestone
@@ -139,6 +145,7 @@ updateMilestone milestoneId milestone =
             , MilestoneCompleteDate =. milestoneCompleteDate milestone
             ]
         get404 milestoneId
+    pure $ mkEntity milestoneId updated
 
 -- | Delete a milestone.
 deleteMilestone :: MilestoneId -> Handler ()
@@ -188,3 +195,11 @@ deleteMilestoneTask milestoneId taskId =
             [ MilestoneTaskMilestoneId ==. milestoneId
             , MilestoneTaskTaskId ==. taskId
             ]
+
+-- Helper for constructiong an entity from a key and record.
+mkEntity :: Key record -> record -> Entity record
+mkEntity key val =
+    Entity
+        { entityKey = key
+        , entityVal = val
+        }
