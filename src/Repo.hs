@@ -25,7 +25,7 @@ listBoards limitTo offsetBy =
 
 -- | Lookup a board by id.
 lookupBoard :: BoardId -> Handler (Entity Board)
-lookupBoard boardId = do
+lookupBoard boardId =
     mkEntity boardId <$> runDB (get404 boardId)
 
 -- | Insert a board in the database and return the inserted entity.
@@ -68,7 +68,7 @@ listTasks boardId limitTo offsetBy =
 
 -- | Lookup a task by id.
 lookupTask :: TaskId -> Handler (Entity Task)
-lookupTask taskId = do
+lookupTask taskId =
     mkEntity taskId <$> runDB (get404 taskId)
 
 -- | Insert a task in the database and return the inserted entity.
