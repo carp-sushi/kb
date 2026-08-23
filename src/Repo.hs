@@ -26,8 +26,7 @@ listBoards limitTo offsetBy =
 -- | Lookup a board by id.
 lookupBoard :: BoardId -> Handler (Entity Board)
 lookupBoard boardId = do
-    board <- runDB $ get404 boardId
-    pure $ mkEntity boardId board
+    mkEntity boardId <$> runDB (get404 boardId)
 
 -- | Insert a board in the database and return the inserted entity.
 createBoard :: Board -> Handler (Entity Board)
@@ -70,8 +69,7 @@ listTasks boardId limitTo offsetBy =
 -- | Lookup a task by id.
 lookupTask :: TaskId -> Handler (Entity Task)
 lookupTask taskId = do
-    task <- runDB $ get404 taskId
-    pure $ mkEntity taskId task
+    mkEntity taskId <$> runDB (get404 taskId)
 
 -- | Insert a task in the database and return the inserted entity.
 createTask :: Task -> Handler (Entity Task)
@@ -130,9 +128,8 @@ createMilestone milestone =
 
 -- | Lookup a milestone by id.
 lookupMilestone :: MilestoneId -> Handler (Entity Milestone)
-lookupMilestone milestoneId = do
-    milestone <- runDB $ get404 milestoneId
-    pure $ mkEntity milestoneId milestone
+lookupMilestone milestoneId =
+    mkEntity milestoneId <$> runDB (get404 milestoneId)
 
 -- | Update a milestone in the database and return the updated record.
 updateMilestone :: MilestoneId -> Milestone -> Handler (Entity Milestone)
