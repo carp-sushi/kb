@@ -18,12 +18,14 @@ data PageParams
 
 -- | Read page parameters from request query params.
 readPageParams :: Handler PageParams
-readPageParams =
-    (mkPageParams . parsePageSize <$> lookupGetParam "pageSize")
-        <*> (parsePageNumber <$> lookupGetParam "pageNumber")
+readPageParams = do
+    mkPageParams
+        <$> readPageSize
+        <*> readPageNumber
   where
-    mkPageParams s n =
-        PageParams s n (s * (n - 1))
+    mkPageParams size number = PageParams size number (size * (number - 1))
+    readPageSize = parsePageSize <$> lookupGetParam "pageSize"
+    readPageNumber = parsePageNumber <$> lookupGetParam "pageNumber"
 
 -- Parse page size and clamp it within a set range (1-100, default 10).
 parsePageSize :: Maybe Text -> Int
