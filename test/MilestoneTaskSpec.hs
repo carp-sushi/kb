@@ -5,6 +5,7 @@ module MilestoneTaskSpec (spec) where
 import TestSupport
 import Data.Aeson
 import Data.Time.Clock (getCurrentTime)
+import Database.Persist.Sql (toSqlKey)
 
 spec :: Spec
 spec = withApp $ do
@@ -24,7 +25,7 @@ spec = withApp $ do
             statusIs 200
 
     describe "delete milestone task link" $ do
-        it "returns 200 when a link exists" $ do
+        it "returns 204 when a link exists" $ do
             (milestoneId, taskId) <- runDB $ do
                 mid <- insert $ Milestone "Milestone" Nothing Nothing
                 bid <- insert $ Board "Board" Green 2
@@ -35,4 +36,11 @@ spec = withApp $ do
                 setMethod "DELETE"
                 setUrl $ MilestoneTaskR milestoneId taskId
                 addRequestHeader ("Accept", "application/json")
-            statusIs 200
+            statusIs 204
+
+        it "returns 404 when a link does not exist" $ do
+            request $ do
+                setMethod "DELETE"
+                setUrl $ MilestoneTaskR (toSqlKey 0) (toSqlKey 0)
+                addRequestHeader ("Accept", "application/json")
+            statusIs 404

@@ -95,12 +95,12 @@ spec = withApp $ do
             statusIs 400
 
     describe "delete milestone" $ do
-        it "returns 200 when a milestone is deleted" $ do
+        it "returns 204 when a milestone is deleted" $ do
             milestoneId <- runDB $ insert $ Milestone "Test" Nothing Nothing
             request $ do
                 setMethod "DELETE"
                 setUrl $ MilestoneR milestoneId
-            statusIs 200
+            statusIs 204
 
         it "returns 404 when a milestone does not exist" $ do
             request $ do

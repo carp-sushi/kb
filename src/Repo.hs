@@ -192,7 +192,9 @@ listMilestoneTasks milestoneId limitTo offsetBy =
 -- | Delete a link between a milestone and a task.
 deleteMilestoneTask :: MilestoneId -> TaskId -> Handler ()
 deleteMilestoneTask milestoneId taskId =
-    runDB $
+    runDB $ do
+        _ <- get404 milestoneId
+        _ <- get404 taskId
         deleteWhere
             [ MilestoneTaskMilestoneId ==. milestoneId
             , MilestoneTaskTaskId ==. taskId

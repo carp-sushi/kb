@@ -108,13 +108,13 @@ spec = withApp $ do
             statusIs 400
 
     describe "delete board" $ do
-        it "returns 200 when an existing board is deleted" $ do
+        it "returns 204 when an existing board is deleted" $ do
             boardId <- runDB $ insert $ Board "Test" Red 1
             request $ do
                 setMethod "DELETE"
                 setUrl $ BoardR boardId
                 addRequestHeader ("Content-Type", "application/json")
-            statusIs 200
+            statusIs 204
 
         it "returns 404 when a board does not exist" $ do
             request $ do

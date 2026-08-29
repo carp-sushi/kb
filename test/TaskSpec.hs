@@ -126,7 +126,7 @@ spec = withApp $ do
             statusIs 400
 
     describe "delete task" $ do
-        it "returns 200 when a task is deleted" $ do
+        it "returns 204 when a task is deleted" $ do
             taskId <- runDB $ do
                 bid <- insert $ Board "Board" Red 1
                 tid <- insert $ Task bid "Task" 1 Todo
@@ -134,7 +134,7 @@ spec = withApp $ do
             request $ do
                 setMethod "DELETE"
                 setUrl $ TaskR taskId
-            statusIs 200
+            statusIs 204
 
         it "returns 404 when a task does not exist" $ do
             request $ do

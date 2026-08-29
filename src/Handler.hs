@@ -39,8 +39,8 @@ putBoardR boardId = do
 
 -- | Delete a board and all tasks on the board.
 deleteBoardR :: BoardId -> Handler ()
-deleteBoardR =
-    deleteBoard
+deleteBoardR boardId =
+    deleteBoard boardId >> sendResponseNoContent
 
 -- | Get all tasks on a board.
 getBoardTasksR :: BoardId -> Handler Value
@@ -78,8 +78,8 @@ putTaskR taskId = do
 
 -- | Delete a task.
 deleteTaskR :: TaskId -> Handler ()
-deleteTaskR =
-    deleteTask
+deleteTaskR taskId =
+    deleteTask taskId >> sendResponseNoContent
 
 -- | Get all milestones linked to a task.
 getTaskMilestonesR :: TaskId -> Handler Value
@@ -113,8 +113,8 @@ putMilestoneR milestoneId = do
 
 -- | Delete a milestone.
 deleteMilestoneR :: MilestoneId -> Handler ()
-deleteMilestoneR =
-    deleteMilestone
+deleteMilestoneR milestoneId =
+    deleteMilestone milestoneId >> sendResponseNoContent
 
 -- | Get all tasks linked to a milestone.
 getMilestoneTasksR :: MilestoneId -> Handler Value
@@ -130,8 +130,8 @@ postMilestoneTasksR milestoneId =
 
 -- | Unlink a milestone from a task
 deleteMilestoneTaskR :: MilestoneId -> TaskId -> Handler ()
-deleteMilestoneTaskR =
-    deleteMilestoneTask
+deleteMilestoneTaskR milestoneId taskId =
+    deleteMilestoneTask milestoneId taskId >> sendResponseNoContent
 
 -- Helper: run a page query and return as JSON.
 queryPage :: (ToJSON a) => (Int -> Int -> Handler [a]) -> Handler Value
