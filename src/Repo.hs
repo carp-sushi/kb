@@ -7,6 +7,7 @@ import Foundation
 import Model
 import qualified Query
 
+import Data.Foldable (traverse_)
 import Database.Persist.Sql
 import Yesod.Core
 import Yesod.Persist.Core (get404, runDB)
@@ -46,11 +47,13 @@ updateBoard boardId board = do
         get404 boardId
     pure $ mkEntity boardId updated
 
--- | Delete a board and all tasks on the board.
+-- | Delete a board, all tasks on the board, and any milestone links to those tasks.
 deleteBoard :: BoardId -> Handler ()
 deleteBoard boardId =
     runDB $ do
         _ <- get404 boardId
+        tasks <- selectList [TaskBoardId ==. boardId] []
+        traverse_ (\(Entity taskId _) -> deleteWhere [MilestoneTaskTaskId ==. taskId]) tasks
         deleteWhere [TaskBoardId ==. boardId]
         delete boardId
 
@@ -102,11 +105,12 @@ moveTaskToBoard boardId taskId = do
         get404 taskId
     pure $ mkEntity taskId task
 
--- | Delete a task.
+-- | Delete a task and any links to milestones.
 deleteTask :: TaskId -> Handler ()
 deleteTask taskId =
     runDB $ do
         _ <- get404 taskId
+        deleteWhere [MilestoneTaskTaskId ==. taskId]
         delete taskId
 
 -- | List a page of milestones ordered by start date descending.
@@ -144,11 +148,12 @@ updateMilestone milestoneId milestone = do
         get404 milestoneId
     pure $ mkEntity milestoneId updated
 
--- | Delete a milestone.
+-- | Delete a milestone and any links to tasks.
 deleteMilestone :: MilestoneId -> Handler ()
 deleteMilestone milestoneId =
     runDB $ do
         _ <- get404 milestoneId
+        deleteWhere [MilestoneTaskMilestoneId ==. milestoneId]
         delete milestoneId
 
 -- | Link a milestone to a task.
