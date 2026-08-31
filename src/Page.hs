@@ -12,18 +12,17 @@ import Yesod.Core
 
 -- | Parameters for querying a page of data.
 data PageParams
-    = PageParams !Int !Int !Int
+    = PageParams !Int !Int
     deriving
         (Eq, Ord, Show)
 
 -- | Read page parameters from request query params.
 readPageParams :: Handler PageParams
 readPageParams = do
-    mkPageParams
+    PageParams
         <$> readPageSize
         <*> readPageNumber
   where
-    mkPageParams size number = PageParams size number (size * (number - 1))
     readPageSize = parsePageSize <$> lookupGetParam "pageSize"
     readPageNumber = parsePageNumber <$> lookupGetParam "pageNumber"
 
