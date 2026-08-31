@@ -58,4 +58,4 @@ runMigrations filePath = do
     settings <- loadSettings filePath
     pool <- DB.createPool settings
     say $ "Running migrations in the " <> settingsEnvironment settings <> " environment"
-    DB.runMigrations settings pool
+    DB.runMigrations pool
