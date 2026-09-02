@@ -135,14 +135,20 @@ deleteMilestoneTaskR milestoneId taskId =
 
 -- Helper: run a page query and return as JSON.
 queryPage :: (ToJSON a) => (Int -> Int -> Handler [a]) -> Handler Value
-queryPage pageQuery = do
-    pageParams@(PageParams size number) <- readPageParams
-    pageQuery size (size * (number - 1))
-        >>= pageJson pageParams
+queryPage pageQuery =
+    readPageParams
+        >>= executeQuery pageQuery
+        >>= returnPageJson
 
--- | Create a JSON data transfer object for a page.
-pageJson :: (ToJSON a) => PageParams -> [a] -> Handler Value
-pageJson (PageParams size number) pageData =
+-- Helper: execute a list query, returning a page (params and data).
+executeQuery :: (Int -> Int -> Handler [a]) -> PageParams -> Handler (PageParams, [a])
+executeQuery pageQuery pageParams@(PageParams size number) =
+    pageQuery size (size * (number - 1))
+        >>= \pageData -> pure (pageParams, pageData)
+
+-- Helper: Render a JSON data transfer object for a page.
+returnPageJson :: (ToJSON a) => (PageParams, [a]) -> Handler Value
+returnPageJson (PageParams size number, pageData) =
     returnJson $
         object
             [ "pageSize" .= size
