@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Repo where
@@ -27,7 +28,8 @@ listBoards limitTo offsetBy =
 -- | Lookup a board by id.
 lookupBoard :: BoardId -> Handler (Entity Board)
 lookupBoard boardId =
-    mkEntity boardId <$> runDB (get404 boardId)
+    mkEntity boardId
+        <$> runDB (get404 boardId)
 
 -- | Insert a board in the database and return the inserted entity.
 createBoard :: Board -> Handler (Entity Board)
@@ -72,7 +74,8 @@ listTasks boardId limitTo offsetBy =
 -- | Lookup a task by id.
 lookupTask :: TaskId -> Handler (Entity Task)
 lookupTask taskId =
-    mkEntity taskId <$> runDB (get404 taskId)
+    mkEntity taskId
+        <$> runDB (get404 taskId)
 
 -- | Insert a task in the database and return the inserted entity.
 createTask :: Task -> Handler (Entity Task)
@@ -133,7 +136,8 @@ createMilestone milestone =
 -- | Lookup a milestone by id.
 lookupMilestone :: MilestoneId -> Handler (Entity Milestone)
 lookupMilestone milestoneId =
-    mkEntity milestoneId <$> runDB (get404 milestoneId)
+    mkEntity milestoneId
+        <$> runDB (get404 milestoneId)
 
 -- | Update a milestone in the database and return the updated record.
 updateMilestone :: MilestoneId -> Milestone -> Handler (Entity Milestone)
@@ -202,8 +206,5 @@ deleteMilestoneTask milestoneId taskId =
 
 -- Helper for constructiong an entity from a key and record.
 mkEntity :: Key record -> record -> Entity record
-mkEntity key val =
-    Entity
-        { entityKey = key
-        , entityVal = val
-        }
+mkEntity entityKey entityVal =
+    Entity{..}
