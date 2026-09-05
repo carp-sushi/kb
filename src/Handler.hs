@@ -9,12 +9,12 @@ import Validate
 import Control.Monad ((>=>))
 import Yesod.Core
 
--- | Get a page of boards.
+-- GET /boards
 getBoardsR :: Handler Value
 getBoardsR =
     queryPage listBoards
 
--- | Create a board.
+-- POST /boards
 postBoardsR :: Handler Value
 postBoardsR = do
     body <- requireCheckJsonBody :: Handler Board
@@ -22,13 +22,13 @@ postBoardsR = do
         Left errors -> invalidArgs errors
         Right board -> (createBoard >=> returnJson) board
 
--- | Get a board.
+-- GET /boards/#BoardId
 getBoardR :: BoardId -> Handler Value
 getBoardR boardId =
-    lookupBoard boardId
+    fetchBoard boardId
         >>= returnJson
 
--- | Update a board.
+-- PUT /boards/#BoardId
 putBoardR :: BoardId -> Handler Value
 putBoardR boardId = do
     body <- requireCheckJsonBody :: Handler Board
@@ -36,25 +36,25 @@ putBoardR boardId = do
         Left errors -> invalidArgs errors
         Right board -> (updateBoard boardId >=> returnJson) board
 
--- | Delete a board and all tasks on the board.
+-- DELETE /boards/#BoardId
 deleteBoardR :: BoardId -> Handler ()
 deleteBoardR boardId =
     deleteBoard boardId
         >> sendResponseNoContent
 
--- | Get all tasks on a board.
+-- GET /boards/#BoardId/tasks
 getBoardTasksR :: BoardId -> Handler Value
 getBoardTasksR boardId =
     queryPage $ listTasks boardId
 
--- | Move a task to a board.
+-- POST /boards/#BoardId/tasks
 postBoardTasksR :: BoardId -> Handler Value
 postBoardTasksR boardId =
     (requireCheckJsonBody :: Handler TaskId)
         >>= moveTaskToBoard boardId
         >>= returnJson
 
--- | Create a task.
+-- POST /tasks
 postTasksR :: Handler Value
 postTasksR = do
     body <- requireCheckJsonBody :: Handler Task
@@ -62,13 +62,13 @@ postTasksR = do
         Left errors -> invalidArgs errors
         Right task -> (createTask >=> returnJson) task
 
--- | Get a task.
+-- GET /tasks/#TaskId
 getTaskR :: TaskId -> Handler Value
 getTaskR taskId =
-    lookupTask taskId
+    fetchTask taskId
         >>= returnJson
 
--- | Update a task.
+-- PUT /tasks/#TaskId
 putTaskR :: TaskId -> Handler Value
 putTaskR taskId = do
     body <- requireCheckJsonBody :: Handler Task
@@ -76,23 +76,23 @@ putTaskR taskId = do
         Left errors -> invalidArgs errors
         Right task -> (updateTask taskId >=> returnJson) task
 
--- | Delete a task.
+-- DELETE /tasks/#TaskId
 deleteTaskR :: TaskId -> Handler ()
 deleteTaskR taskId =
     deleteTask taskId
         >> sendResponseNoContent
 
--- | Get all milestones linked to a task.
+-- GET /tasks/#TaskId/milestones
 getTaskMilestonesR :: TaskId -> Handler Value
 getTaskMilestonesR taskId =
     queryPage $ listTaskMilestones taskId
 
--- | List all milestones.
+-- GET /milestones
 getMilestonesR :: Handler Value
 getMilestonesR =
     queryPage listMilestones
 
--- | Create a milestone.
+-- POST /milestones
 postMilestonesR :: Handler Value
 postMilestonesR = do
     body <- requireCheckJsonBody :: Handler Milestone
@@ -100,12 +100,13 @@ postMilestonesR = do
         Left errors -> invalidArgs errors
         Right milestone -> (createMilestone >=> returnJson) milestone
 
--- | Get a milestone.
+-- GET /milestones/#MilestoneId
 getMilestoneR :: MilestoneId -> Handler Value
 getMilestoneR milestoneId =
-    lookupMilestone milestoneId
+    fetchMilestone milestoneId
         >>= returnJson
 
+-- PUT /milestones/#MilestoneId
 putMilestoneR :: MilestoneId -> Handler Value
 putMilestoneR milestoneId = do
     body <- requireCheckJsonBody :: Handler Milestone
@@ -113,25 +114,25 @@ putMilestoneR milestoneId = do
         Left errors -> invalidArgs errors
         Right milestone -> (updateMilestone milestoneId >=> returnJson) milestone
 
--- | Delete a milestone.
+-- DELETE /milestones/#MilestoneId
 deleteMilestoneR :: MilestoneId -> Handler ()
 deleteMilestoneR milestoneId =
     deleteMilestone milestoneId
         >> sendResponseNoContent
 
--- | Get all tasks linked to a milestone.
+-- GET /milestones/#MilestoneId/tasks
 getMilestoneTasksR :: MilestoneId -> Handler Value
 getMilestoneTasksR milestoneId =
     queryPage $ listMilestoneTasks milestoneId
 
--- | Link a milestone to a task
+-- POST /milestones/#MilestoneId/tasks
 postMilestoneTasksR :: MilestoneId -> Handler Value
 postMilestoneTasksR milestoneId =
     (requireCheckJsonBody :: Handler TaskId)
         >>= createMilestoneTask milestoneId
         >>= returnJson
 
--- | Unlink a milestone from a task
+-- DELETE /milestones/#MilestoneId/tasks/#TaskId
 deleteMilestoneTaskR :: MilestoneId -> TaskId -> Handler ()
 deleteMilestoneTaskR milestoneId taskId =
     deleteMilestoneTask milestoneId taskId

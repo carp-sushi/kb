@@ -24,9 +24,9 @@ listBoards limitTo offsetBy =
             , Asc BoardName
             ]
 
--- | Lookup a board by id.
-lookupBoard :: BoardId -> Handler (Entity Board)
-lookupBoard boardId =
+-- | Fetch a board by id.
+fetchBoard :: BoardId -> Handler (Entity Board)
+fetchBoard boardId =
     runDB (get404 boardId)
         >>= mkEntity boardId
 
@@ -68,9 +68,9 @@ listTasks boardId limitTo offsetBy =
             , Asc TaskName
             ]
 
--- | Lookup a task by id.
-lookupTask :: TaskId -> Handler (Entity Task)
-lookupTask taskId =
+-- | Fetch a task by id.
+fetchTask :: TaskId -> Handler (Entity Task)
+fetchTask taskId =
     runDB (get404 taskId)
         >>= mkEntity taskId
 
@@ -129,9 +129,9 @@ createMilestone :: Milestone -> Handler (Entity Milestone)
 createMilestone milestone =
     runDB $ insertEntity milestone
 
--- | Lookup a milestone by id.
-lookupMilestone :: MilestoneId -> Handler (Entity Milestone)
-lookupMilestone milestoneId =
+-- | Fetch a milestone by id.
+fetchMilestone :: MilestoneId -> Handler (Entity Milestone)
+fetchMilestone milestoneId =
     runDB (get404 milestoneId)
         >>= mkEntity milestoneId
 
