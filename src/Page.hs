@@ -3,6 +3,7 @@
 module Page (
     PageParams (..),
     queryPage,
+    readPageParams,
 ) where
 
 import Data.Text (Text, unpack)
@@ -28,13 +29,17 @@ readPageParams = do
 
 -- Parse page size and clamp it within a set range (1-100, default 10).
 parsePageSize :: Maybe Text -> Int
-parsePageSize =
-    maybe 10 (max 1 . min 100) . parseInt
+parsePageSize = clamp . parseInt
+  where
+    clamp Nothing = 10
+    clamp (Just n) = max 1 $ min 100 n
 
 -- Parse page number and ensure it is a positive integer (default 1).
 parsePageNumber :: Maybe Text -> Int
-parsePageNumber =
-    maybe 1 (max 1) . parseInt
+parsePageNumber = clamp . parseInt
+  where
+    clamp Nothing = 1
+    clamp (Just n) = max 1 n
 
 -- Convert text to int if defined.
 parseInt :: Maybe Text -> Maybe Int

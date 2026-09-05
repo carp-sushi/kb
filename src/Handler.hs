@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Handler where
 
 import Foundation
@@ -27,7 +25,8 @@ postBoardsR = do
 -- | Get a board.
 getBoardR :: BoardId -> Handler Value
 getBoardR boardId =
-    lookupBoard boardId >>= returnJson
+    lookupBoard boardId
+        >>= returnJson
 
 -- | Update a board.
 putBoardR :: BoardId -> Handler Value
@@ -40,7 +39,8 @@ putBoardR boardId = do
 -- | Delete a board and all tasks on the board.
 deleteBoardR :: BoardId -> Handler ()
 deleteBoardR boardId =
-    deleteBoard boardId >> sendResponseNoContent
+    deleteBoard boardId
+        >> sendResponseNoContent
 
 -- | Get all tasks on a board.
 getBoardTasksR :: BoardId -> Handler Value
@@ -49,10 +49,10 @@ getBoardTasksR boardId =
 
 -- | Move a task to a board.
 postBoardTasksR :: BoardId -> Handler Value
-postBoardTasksR boardId = do
-    taskId <- requireCheckJsonBody :: Handler TaskId
-    task <- moveTaskToBoard boardId taskId
-    returnJson task
+postBoardTasksR boardId =
+    (requireCheckJsonBody :: Handler TaskId)
+        >>= moveTaskToBoard boardId
+        >>= returnJson
 
 -- | Create a task.
 postTasksR :: Handler Value
@@ -79,7 +79,8 @@ putTaskR taskId = do
 -- | Delete a task.
 deleteTaskR :: TaskId -> Handler ()
 deleteTaskR taskId =
-    deleteTask taskId >> sendResponseNoContent
+    deleteTask taskId
+        >> sendResponseNoContent
 
 -- | Get all milestones linked to a task.
 getTaskMilestonesR :: TaskId -> Handler Value
@@ -102,7 +103,8 @@ postMilestonesR = do
 -- | Get a milestone.
 getMilestoneR :: MilestoneId -> Handler Value
 getMilestoneR milestoneId =
-    lookupMilestone milestoneId >>= returnJson
+    lookupMilestone milestoneId
+        >>= returnJson
 
 putMilestoneR :: MilestoneId -> Handler Value
 putMilestoneR milestoneId = do
@@ -114,7 +116,8 @@ putMilestoneR milestoneId = do
 -- | Delete a milestone.
 deleteMilestoneR :: MilestoneId -> Handler ()
 deleteMilestoneR milestoneId =
-    deleteMilestone milestoneId >> sendResponseNoContent
+    deleteMilestone milestoneId
+        >> sendResponseNoContent
 
 -- | Get all tasks linked to a milestone.
 getMilestoneTasksR :: MilestoneId -> Handler Value
@@ -131,4 +134,5 @@ postMilestoneTasksR milestoneId =
 -- | Unlink a milestone from a task
 deleteMilestoneTaskR :: MilestoneId -> TaskId -> Handler ()
 deleteMilestoneTaskR milestoneId taskId =
-    deleteMilestoneTask milestoneId taskId >> sendResponseNoContent
+    deleteMilestoneTask milestoneId taskId
+        >> sendResponseNoContent
