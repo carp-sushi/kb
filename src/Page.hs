@@ -66,12 +66,9 @@ queryPage listQuery =
 
 -- Execute a list query, returning a page (params and data).
 executeQuery :: (Int -> Int -> Handler [a]) -> PageParams -> Handler (Page a)
-executeQuery listQuery (PageParams pageSize pageNumber) =
-    listQuery size (size * (number - 1))
-        >>= \pageData -> pure (pageSize, pageNumber, pageData)
-  where
-    (PageSize size) = pageSize
-    (PageNumber number) = pageNumber
+executeQuery listQuery (PageParams pageSize@(PageSize size) pageNumber@(PageNumber number)) = do
+    pageData <- listQuery size (size * (number - 1))
+    pure (pageSize, pageNumber, pageData)
 
 -- Render a JSON data transfer object for a page.
 returnPageJson :: (ToJSON a) => Page a -> Handler Value

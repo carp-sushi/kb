@@ -8,7 +8,6 @@ import Foundation
 import Model
 import qualified Query
 
-import Data.Foldable (traverse_)
 import Database.Persist.Sql
 import Yesod.Core
 import Yesod.Persist.Core (get404, runDB)
@@ -28,8 +27,8 @@ listBoards limitTo offsetBy =
 -- | Lookup a board by id.
 lookupBoard :: BoardId -> Handler (Entity Board)
 lookupBoard boardId =
-    mkEntity boardId
-        <$> runDB (get404 boardId)
+    runDB (get404 boardId)
+        >>= mkEntity boardId
 
 -- | Insert a board in the database and return the inserted entity.
 createBoard :: Board -> Handler (Entity Board)
@@ -47,15 +46,13 @@ updateBoard boardId board = do
             , BoardPosition =. boardPosition board
             ]
         get404 boardId
-    pure $ mkEntity boardId updated
+    mkEntity boardId updated
 
--- | Delete a board, all tasks on the board, and any milestone links to those tasks.
+-- | Delete a board and all tasks on the board.
 deleteBoard :: BoardId -> Handler ()
 deleteBoard boardId =
     runDB $ do
         _ <- get404 boardId
-        tasks <- selectList [TaskBoardId ==. boardId] []
-        traverse_ (\(Entity taskId _) -> deleteWhere [MilestoneTaskTaskId ==. taskId]) tasks
         deleteWhere [TaskBoardId ==. boardId]
         delete boardId
 
@@ -74,8 +71,8 @@ listTasks boardId limitTo offsetBy =
 -- | Lookup a task by id.
 lookupTask :: TaskId -> Handler (Entity Task)
 lookupTask taskId =
-    mkEntity taskId
-        <$> runDB (get404 taskId)
+    runDB (get404 taskId)
+        >>= mkEntity taskId
 
 -- | Insert a task in the database and return the inserted entity.
 createTask :: Task -> Handler (Entity Task)
@@ -97,7 +94,7 @@ updateTask taskId task = do
             , TaskStatus =. taskStatus task
             ]
         get404 taskId
-    pure $ mkEntity taskId updated
+    mkEntity taskId updated
 
 -- | Move task to another board.
 moveTaskToBoard :: BoardId -> TaskId -> Handler (Entity Task)
@@ -106,14 +103,13 @@ moveTaskToBoard boardId taskId = do
         _ <- get404 boardId
         update taskId [TaskBoardId =. boardId]
         get404 taskId
-    pure $ mkEntity taskId task
+    mkEntity taskId task
 
--- | Delete a task and any links to milestones.
+-- | Delete a task.
 deleteTask :: TaskId -> Handler ()
 deleteTask taskId =
     runDB $ do
         _ <- get404 taskId
-        deleteWhere [MilestoneTaskTaskId ==. taskId]
         delete taskId
 
 -- | List a page of milestones ordered by start date descending.
@@ -136,8 +132,8 @@ createMilestone milestone =
 -- | Lookup a milestone by id.
 lookupMilestone :: MilestoneId -> Handler (Entity Milestone)
 lookupMilestone milestoneId =
-    mkEntity milestoneId
-        <$> runDB (get404 milestoneId)
+    runDB (get404 milestoneId)
+        >>= mkEntity milestoneId
 
 -- | Update a milestone in the database and return the updated record.
 updateMilestone :: MilestoneId -> Milestone -> Handler (Entity Milestone)
@@ -150,14 +146,13 @@ updateMilestone milestoneId milestone = do
             , MilestoneCompleteDate =. milestoneCompleteDate milestone
             ]
         get404 milestoneId
-    pure $ mkEntity milestoneId updated
+    mkEntity milestoneId updated
 
--- | Delete a milestone and any links to tasks.
+-- | Delete a milestone.
 deleteMilestone :: MilestoneId -> Handler ()
 deleteMilestone milestoneId =
     runDB $ do
         _ <- get404 milestoneId
-        deleteWhere [MilestoneTaskMilestoneId ==. milestoneId]
         delete milestoneId
 
 -- | Link a milestone to a task.
@@ -205,6 +200,6 @@ deleteMilestoneTask milestoneId taskId =
             ]
 
 -- Helper for constructiong an entity from a key and record.
-mkEntity :: Key record -> record -> Entity record
+mkEntity :: Key record -> record -> Handler (Entity record)
 mkEntity entityKey entityVal =
-    Entity{..}
+    pure Entity{..}

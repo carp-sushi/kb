@@ -21,7 +21,7 @@ Milestone json sql=milestones
     deriving Eq Read Show
 
 MilestoneTask json sql=milestone_tasks
-    milestoneId MilestoneId
-    taskId TaskId
+    milestoneId MilestoneId OnDeleteCascade
+    taskId TaskId OnDeleteCascade
     Primary milestoneId taskId
     deriving Eq Read Show
