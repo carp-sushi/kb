@@ -4,6 +4,7 @@ module Page (
     PageSize (..),
     PageNumber (..),
     PageParams (..),
+    Page (..),
     queryPage,
     readPageParams,
 ) where
@@ -25,8 +26,9 @@ newtype PageNumber = PageNumber Int
 data PageParams = PageParams !PageSize !PageNumber
     deriving (Eq, Ord, Show)
 
--- | A type alias for a page.
-type Page a = (PageSize, PageNumber, [a])
+-- | A page of data with input parameters.
+data Page a = Page !PageParams ![a]
+    deriving (Eq, Ord, Show)
 
 -- | Read page parameters from request query params.
 readPageParams :: Handler PageParams
@@ -66,13 +68,13 @@ queryPage listQuery =
 
 -- Execute a list query, returning a page (params and data).
 executeQuery :: (Int -> Int -> Handler [a]) -> PageParams -> Handler (Page a)
-executeQuery listQuery (PageParams pageSize@(PageSize size) pageNumber@(PageNumber number)) = do
-    pageData <- listQuery size (size * (number - 1))
-    pure (pageSize, pageNumber, pageData)
+executeQuery listQuery pageParams@(PageParams (PageSize size) (PageNumber number)) =
+    Page pageParams
+        <$> listQuery size (size * (number - 1))
 
 -- Render a JSON data transfer object for a page.
 returnPageJson :: (ToJSON a) => Page a -> Handler Value
-returnPageJson (PageSize size, PageNumber number, pageData) =
+returnPageJson (Page (PageParams (PageSize size) (PageNumber number)) pageData) =
     returnJson $
         object
             [ "pageSize" .= size
