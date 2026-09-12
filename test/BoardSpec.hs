@@ -85,12 +85,11 @@ spec = withApp $ do
 
         it "returns 400 when JSON body is invalid" $ do
             boardId <- runDB $ insert $ Board "Test" Red 1
-            let body = object ["foo" .= ("Test" :: Value)]
             request $ do
                 setMethod "PUT"
                 setUrl $ BoardR boardId
                 addRequestHeader ("Content-Type", "application/json")
-                setRequestBody $ encode body
+                setRequestBody $ encode $ object ["namee" .= ("Test" :: Value)]
             statusIs 400
 
         it "returns 400 when JSON body is valid but board validation fails" $ do
