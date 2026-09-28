@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Page (
@@ -11,16 +13,23 @@ module Page (
 
 import Data.Text (Text, unpack)
 import Foundation
+import GHC.Generics
 import Text.Read (readMaybe)
 import Yesod.Core
 
 -- | A type for page size
 newtype PageSize = PageSize Int
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Generic, Num, Ord, Show)
+
+-- JSON support for page size.
+instance ToJSON PageSize
 
 -- | A type for page number
 newtype PageNumber = PageNumber Int
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Generic, Num, Ord, Show)
+
+-- JSON support for page number.
+instance ToJSON PageNumber
 
 -- | Parameters for querying a page of data.
 data PageParams = PageParams !PageSize !PageNumber
@@ -74,7 +83,7 @@ executeQuery listQuery pageParams@(PageParams (PageSize size) (PageNumber number
 
 -- Render a JSON data transfer object for a page.
 returnPageJson :: (ToJSON a) => Page a -> Handler Value
-returnPageJson (Page (PageParams (PageSize size) (PageNumber number)) pageData) =
+returnPageJson (Page (PageParams size number) pageData) =
     returnJson $
         object
             [ "pageSize" .= size
