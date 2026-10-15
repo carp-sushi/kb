@@ -69,8 +69,8 @@ validateTask' (Task boardId name points status) =
 
 -- Call a validation function and transform the result to an Either type.
 mkEither :: (a -> Validation [Error] a) -> a -> Either [T.Text] a
-mkEither vaidate a =
-    case vaidate a of
+mkEither validate a =
+    case validate a of
         Success a' -> Right a'
         Failure errors -> Left $ fmap errorText errors
 
