@@ -32,11 +32,11 @@ validateBoard =
 -- Internal board validation
 validateBoard' :: Board -> Validation [Error] Board
 validateBoard' (Board name color position) =
-    mkBoard
+    Board
         <$> validateName name
+        <*> Success color
         <*> validatePosition position
   where
-    mkBoard = (`Board` color)
     validatePosition = check (< 0) InvalidPosition
 
 -- | Validate a milestone
@@ -60,18 +60,19 @@ validateTask =
 -- Internal task validation
 validateTask' :: Task -> Validation [Error] Task
 validateTask' (Task boardId name points status) =
-    mkTask
-        <$> validateName name
+    Task
+        <$> Success boardId
+        <*> validateName name
         <*> validatePoints points
+        <*> Success status
   where
-    mkTask n p = Task boardId n p status
     validatePoints = check (\p -> p < 1 || p > 8) InvalidPoints
 
 -- Call a validation function and transform the result to an Either type.
-mkEither :: (a -> Validation [Error] a) -> a -> Either [T.Text] a
+mkEither :: (a -> Validation [Error] b) -> a -> Either [T.Text] b
 mkEither validate' a =
     case validate' a of
-        Success a' -> Right a'
+        Success b -> Right b
         Failure errors -> Left $ fmap errorText errors
 
 -- Internal name validation
